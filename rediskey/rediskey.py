@@ -28,8 +28,8 @@ from enumerate_input import enumerate_input
 from pkg_resources import iter_entry_points
 from retry_on_exception import retry_on_exception
 
-from rediskey import RedisKey
-from rediskey import RedisKeyTypeNotFoundError
+from rediskey import RedisKey, RedisKeyTypeNotFoundError
+
 #from collections import defaultdict
 #from prettyprinter import cpprint, install_extras
 #install_extras(['attrs'])
@@ -50,10 +50,6 @@ try:
     from icecream import ic  # https://github.com/gruns/icecream
 except ImportError:
     ic = eprint
-
-
-class RedisKeyTypeNotFoundError(ValueError):
-    pass
 
 
 def get_size_of_key(r, key):
@@ -155,7 +151,7 @@ def list_keys(ctx):
 def list_key(ctx, key):
     r = redis.Redis(host='127.0.0.1')
 
-    iterator = RedisKey(r=r, key=key, hash_type="sha3_256")
+    iterator = RedisKey(key=key, hash_type="sha3_256")
 
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
