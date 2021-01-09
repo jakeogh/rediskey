@@ -45,14 +45,13 @@ class RedisKey():
         self.type = self.r.type(self.key).decode('utf8')
         ic(self.type)
         ic(key_type)
-        if self.type:
+        if self.type == 'none':
+            ic('new key:', key, key_type)
+            self.type = key_type
+        else:
             if key_type != self.type:
                 raise ValueError(self.type, 'does not match', key_type)
-        else:
-            self.type = key_type
         self.algorithm_length = hash_length
-        #if self.type == 'none':
-        #    self.type = key_type
 
         self.algorithm = algorithm
         #if self.algorithm:
