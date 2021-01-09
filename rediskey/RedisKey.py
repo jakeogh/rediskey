@@ -20,6 +20,7 @@ import hashlib
 import time
 
 import redis
+from icecream import ic
 from uniquepipe import generate_truncated_string_hash
 
 
@@ -44,7 +45,11 @@ class RedisKey():
         self.type = self.r.type(self.key).decode('utf8')
         ic(self.type)
         ic(key_type)
-        assert key_type == self.type
+        if self.type:
+            if key_type != self.type:
+                raise ValueError(self.type, 'does not match', key_type)
+        else:
+            self.type = key_type
         self.algorithm_length = hash_length
         #if self.type == 'none':
         #    self.type = key_type
