@@ -14,14 +14,12 @@
 # pylint: disable=R0903     # too few public methods
 # pylint: disable=E1101     # no uhashfs member for base
 # pylint: disable=W0201     # attribute defined outside __init__
-# pylint: disable=W0703     # catching too general exception
+
+import binascii
 import hashlib
 import time
-import binascii
+
 import redis
-#from kcl.printops import eprint
-#from kcl.printops import eeprint
-#from kcl.printops import ceprint
 
 
 class RedisKeyTypeNotFoundError(ValueError):
@@ -31,11 +29,15 @@ class RedisKeyTypeNotFoundError(ValueError):
 class RedisKey():
     def __init__(self, *,
                  key,
+                 verbose: bool,
+                 debug: bool,
                  hash_type=None,
                  key_type=None,
                  hash_length=None,):
         assert key.endswith('#')
         assert ':' in key
+        self.verbose = verbose
+        self.debug = debug
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.key = key
         self.type = self.r.type(self.key).decode('utf8')
