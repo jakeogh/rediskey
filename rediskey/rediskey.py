@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+
+# pylint: disable=C0111  # docstrings are always outdated and wrong
+# pylint: disable=W0511  # todo is encouraged
+# pylint: disable=C0301  # line too long
+# pylint: disable=R0902  # too many instance attributes
+# pylint: disable=C0302  # too many lines in module
+# pylint: disable=C0103  # single letter var names, func name too descriptive
+# pylint: disable=R0911  # too many return statements
+# pylint: disable=R0912  # too many branches
+# pylint: disable=R0915  # too many statements
+# pylint: disable=R0913  # too many arguments
+# pylint: disable=R1702  # too many nested blocks
+# pylint: disable=R0914  # too many local variables
+# pylint: disable=R0903  # too few public methods
+# pylint: disable=E1101  # no member for base
+# pylint: disable=W0201  # attribute defined outside __init__
+# pylint: disable=R0916  # Too many boolean expressions in if statement
+
+
+import os
+import sys
+import click
+import redis
+from pathlib import Path
+from retry_on_exception import retry_on_exception
+from enumerate_input import enumerate_input
+#from collections import defaultdict
+#from prettyprinter import cpprint, install_extras
+#install_extras(['attrs'])
+#from getdents import files
+
+from click_plugins import with_plugins
+from pkg_resources import iter_entry_points
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+except ImportError:
+    ic = eprint
+
+
+
+# import pdb; pdb.set_trace()
+# from pudb import set_trace; set_trace(paused=False)
+
+
+@cli.command()
+#@click.argument("list-keys", type=str, nargs=-1)
+@click.pass_context
+def list_keys(ctx):
+    pass
+    for index, url in enumerate_input(iterator=None,
+                                      null=ctx.obj['null'],
+                                      progress=ctx.obj['progress'],
+                                      skip=ctx.obj['skip'],
+                                      head=ctx.obj['head'],
+                                      tail=ctx.obj['tail'],
+                                      debug=ctx.obj['debug'],
+                                      verbose=ctx.obj['verbose'],):
+
+        if ctx.obj['verbose']:
+            ic(index, url)
+
+
+# DONT CHANGE FUNC NAME
+@click.command()
+@click.argument("key", type=str, nargs=1)
+@click.argument("values", type=str, nargs=-1)
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+@click.option('--count', is_flag=True)
+@click.option('--skip', type=int, default=False)
+@click.option('--head', type=int, default=False)
+@click.option('--tail', type=int, default=False)
+@click.option("--printn", is_flag=True)
+@click.option("--progress", is_flag=True)
+@with_plugins(iter_entry_points('click_command_tree'))
+@click.group()
+@click.pass_context
+def cli(ctx,
+        key,
+        values,
+        verbose,
+        debug,
+        simulate,
+        ipython,
+        count,
+        skip,
+        head,
+        tail,
+        progress,
+        printn,):
+
+    null = not printn
+    end = '\n'
+    if null:
+        end = '\x00'
+    if sys.stdout.isatty():
+        end = '\n'
+        assert not ipython
+
+    #progress = False
+    if (verbose or debug):
+        progress = False
+
+    ctx.ensure_object(dict)
+    ctx.obj['verbose'] = verbose
+    ctx.obj['debug'] = debug
+    ctx.obj['end'] = end
+    ctx.obj['null'] = null
+    ctx.obj['progress'] = progress
+
+    redis_instance = redis.StrictRedis(host='127.0.0.1')
+
+    iterator = None
+
+    for index, value in enumerate_input(iterator=iterator,
+                                        null=null,
+                                        progress=progress,
+                                        skip=skip,
+                                        head=head,
+                                        tail=tail,
+                                        debug=debug,
+                                        verbose=verbose,):
+
+        if verbose:
+            ic(index, value)
+
+        if not count:
+            print(value, end=end)
+
+    if count:
+        print(index + 1, end=end)
+
+#        if ipython:
+#            import IPython; IPython.embed()
+
+
