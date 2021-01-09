@@ -20,18 +20,26 @@
 
 import os
 import sys
+from pathlib import Path
+
 import click
 import redis
-from pathlib import Path
-from retry_on_exception import retry_on_exception
+from click_plugins import with_plugins
 from enumerate_input import enumerate_input
+from pkg_resources import iter_entry_points
+from retry_on_exception import retry_on_exception
+
+from rediskey import RedisKey
+
 #from collections import defaultdict
 #from prettyprinter import cpprint, install_extras
 #install_extras(['attrs'])
 #from getdents import files
+# import pdb; pdb.set_trace()
+# from pudb import set_trace; set_trace(paused=False)
 
-from click_plugins import with_plugins
-from pkg_resources import iter_entry_points
+
+
 
 def eprint(*args, **kwargs):
     if 'file' in kwargs.keys():
@@ -45,30 +53,6 @@ except ImportError:
     ic = eprint
 
 
-
-# import pdb; pdb.set_trace()
-# from pudb import set_trace; set_trace(paused=False)
-
-
-@cli.command()
-#@click.argument("list-keys", type=str, nargs=-1)
-@click.pass_context
-def list_keys(ctx):
-    pass
-    for index, url in enumerate_input(iterator=None,
-                                      null=ctx.obj['null'],
-                                      progress=ctx.obj['progress'],
-                                      skip=ctx.obj['skip'],
-                                      head=ctx.obj['head'],
-                                      tail=ctx.obj['tail'],
-                                      debug=ctx.obj['debug'],
-                                      verbose=ctx.obj['verbose'],):
-
-        if ctx.obj['verbose']:
-            ic(index, url)
-
-
-# DONT CHANGE FUNC NAME
 @click.command()
 @click.argument("key", type=str, nargs=1)
 @click.argument("values", type=str, nargs=-1)
@@ -116,9 +100,9 @@ def cli(ctx,
     ctx.obj['null'] = null
     ctx.obj['progress'] = progress
 
-    redis_instance = redis.StrictRedis(host='127.0.0.1')
+    #redis_instance = redis.StrictRedis(host='127.0.0.1')
 
-    iterator = None
+    iterator = RedisKey(key=key, hash_type="sha3_256")
 
     for index, value in enumerate_input(iterator=iterator,
                                         null=null,
@@ -142,3 +126,19 @@ def cli(ctx,
 #            import IPython; IPython.embed()
 
 
+@cli.command()
+#@click.argument("list-keys", type=str, nargs=-1)
+@click.pass_context
+def list_keys(ctx):
+    pass
+    for index, url in enumerate_input(iterator=None,
+                                      null=ctx.obj['null'],
+                                      progress=ctx.obj['progress'],
+                                      skip=ctx.obj['skip'],
+                                      head=ctx.obj['head'],
+                                      tail=ctx.obj['tail'],
+                                      debug=ctx.obj['debug'],
+                                      verbose=ctx.obj['verbose'],):
+
+        if ctx.obj['verbose']:
+            ic(index, url)
