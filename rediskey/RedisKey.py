@@ -32,9 +32,9 @@ class RedisKey():
     def __init__(self, *,
                  key,
                  key_type,
+                 algorithm: str,
                  verbose: bool,
                  debug: bool,
-                 algorithm=None,
                  hash_length=None,):
         assert key.endswith('#')
         assert ':' in key
