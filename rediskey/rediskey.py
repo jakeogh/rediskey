@@ -53,18 +53,21 @@ except ImportError:
     ic = eprint
 
 
+class RedisKeyTypeNotFoundError(ValueError):
+    pass
+
+
 def get_size_of_key(r, key):
     key_type = r.type(key)
     if key_type == b'zset':
         return r.zcard(key)
-    elif key_type == b'set':
+    if key_type == b'set':
         return r.scard(key)
-    elif key_type == b'list':
+    if key_type == b'list':
         return r.llen(key)
-    elif key_type == b'hash':
+    if key_type == b'hash':
         return r.hlen(key)
-    else:
-        raise FileNotFoundError
+    raise RedisKeyTypeNotFoundError(key_type)
 
 
 def list_keys_and_sizes(r):
@@ -77,8 +80,6 @@ def list_keys_and_sizes(r):
 
 
 #@click.command()
-@click.argument("key", type=str, nargs=1)
-@click.argument("values", type=str, nargs=-1)
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.option('--count', is_flag=True)
@@ -91,12 +92,8 @@ def list_keys_and_sizes(r):
 @click.group()
 @click.pass_context
 def cli(ctx,
-        key,
-        values,
         verbose,
         debug,
-        simulate,
-        ipython,
         count,
         skip,
         head,
@@ -122,28 +119,10 @@ def cli(ctx,
     ctx.obj['end'] = end
     ctx.obj['null'] = null
     ctx.obj['progress'] = progress
+    ctx.obj['count'] = count
 
     #redis_instance = redis.StrictRedis(host='127.0.0.1')
 
-    iterator = RedisKey(key=key, hash_type="sha3_256")
-
-    for index, value in enumerate_input(iterator=iterator,
-                                        null=null,
-                                        progress=progress,
-                                        skip=skip,
-                                        head=head,
-                                        tail=tail,
-                                        debug=debug,
-                                        verbose=verbose,):
-
-        if verbose:
-            ic(index, value)
-
-        if not count:
-            print(value, end=end)
-
-    if count:
-        print(index + 1, end=end)
 
 
 @cli.command()
@@ -166,3 +145,31 @@ def list_keys(ctx):
             ic(index, value)
 
         print(value, end=ctx.obj['end'])
+
+
+@cli.command()
+@click.argument("key", type=str, nargs=1)
+#@click.argument("values", type=str, nargs=-1)
+@click.pass_context
+def list_key(ctx, key):
+    r = redis.Redis(host='127.0.0.1')
+
+    iterator = RedisKey(r=r, key=key, hash_type="sha3_256")
+
+    for index, value in enumerate_input(iterator=iterator,
+                                        null=ctx.obj['null'],
+                                        progress=ctx.obj['progress'],
+                                        skip=ctx.obj['skip'],
+                                        head=ctx.obj['head'],
+                                        tail=ctx.obj['tail'],
+                                        debug=ctx.obj['debug'],
+                                        verbose=ctx.obj['verbose'],):
+
+        if ctx.obj['verbose']:
+            ic(index, value)
+
+        if not ctx.obj['count']:
+            print(value, end=ctx.obj['end'])
+
+    if ctx.obj['count']:
+        print(index + 1, end=ctx.obj['end'])
