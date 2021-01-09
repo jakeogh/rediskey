@@ -70,13 +70,13 @@ def get_size_of_key(r, key):
 def list_keys_and_sizes(r):
     keys = r.keys()
     for key in keys:
-        #key_type = r.type(key)
+        key_type = r.type(key)
         length = get_size_of_key(r=r, key=key)
         result = key.decode('utf8') + ' ', key_type.decode('utf8'), length
         yield result
 
 
-@click.command()
+#@click.command()
 @click.argument("key", type=str, nargs=1)
 @click.argument("values", type=str, nargs=-1)
 @click.option('--verbose', is_flag=True)
