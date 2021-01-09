@@ -42,6 +42,8 @@ class RedisKey():
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.key = key
         self.type = self.r.type(self.key).decode('utf8')
+        ic(self.type)
+        ic(key_type)
         assert key_type == self.type
         self.algorithm_length = hash_length
         #if self.type == 'none':
