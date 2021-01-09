@@ -20,6 +20,7 @@ import hashlib
 import time
 
 import redis
+from uniquepipe import generate_truncated_string_hash
 
 
 class RedisKeyTypeNotFoundError(ValueError):
@@ -29,10 +30,10 @@ class RedisKeyTypeNotFoundError(ValueError):
 class RedisKey():
     def __init__(self, *,
                  key,
+                 key_type,
                  verbose: bool,
                  debug: bool,
-                 hash_type=None,
-                 key_type=None,
+                 algorithm=None,
                  hash_length=None,):
         assert key.endswith('#')
         assert ':' in key
@@ -41,18 +42,19 @@ class RedisKey():
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.key = key
         self.type = self.r.type(self.key).decode('utf8')
-        self.hash_length = hash_length
-        if self.type == 'none':
-            self.type = key_type
+        assert key_type == self.type
+        self.algorithm_length = hash_length
+        #if self.type == 'none':
+        #    self.type = key_type
 
-        self.hash = hash_type
-        if self.hash:
-            self.digestlen = hashlib.new(self.hash).digest_size
-            self.hexdigestlen = self.digestlen * 2
-            self.emptydigest = getattr(hashlib, self.hash)(b'').digest()
-            self.emptyhexdigest = self.emptydigest.hex()
-            assert len(self.emptydigest) == self.digestlen
-            assert len(self.emptyhexdigest) == self.hexdigestlen
+        self.algorithm = algorithm
+        #if self.algorithm:
+        #    self.digestlen = hashlib.new(self.algorithm).digest_size
+        #    self.hexdigestlen = self.digestlen * 2
+        #    self.emptydigest = getattr(hashlib, self.algorithm)(b'').digest()
+        #    self.emptyhexdigest = self.emptydigest.hex()
+        #    assert len(self.emptydigest) == self.digestlen
+        #    assert len(self.emptyhexdigest) == self.hexdigestlen
 
     def __iter__(self):
         cursor = None
@@ -76,29 +78,34 @@ class RedisKey():
                 yield v
         raise RedisKeyTypeNotFoundError(self.type)
 
-    def __contains__(self, value):
-        if not isinstance(value, RedisKey):
-            if not isinstance(value, bytes):
-                value = binascii.unhexlify(value)
-        else:
-            for v in value:  # todo use set op
-                if isinstance(v, tuple):
-                    v = v[0]
-                #import IPython
-                #IPython.embed()
-                if not self.__contains__(v):
-                    return False
-            return True
+    def __contains__(self, value: str):
+        value_hash = generate_truncated_string_hash(string=value,
+                                                    algorithm=self.algorithm,
+                                                    length=self.hash_length,
+                                                    verbose=self.verbose,
+                                                    debug=self.debug,)
+        #if not isinstance(value, RedisKey):
+        #    if not isinstance(value, bytes):
+        #        value = binascii.unhexlify(value)
+        #else:
+        #    for v in value:  # todo use set op
+        #        if isinstance(v, tuple):
+        #            v = v[0]
+        #        #import IPython
+        #        #IPython.embed()
+        #        if not self.__contains__(v):
+        #            return False
+        #    return True
 
         if self.type == 'zset':
-            return bool(self.r.zscore(self.key, value))
+            return bool(self.r.zscore(self.key, value_hash))
         if self.type == 'set':
-            return bool(self.r.sismember(self.key, value))
+            return bool(self.r.sismember(self.key, value_hash))
         if self.type == 'hash':
-            return bool(self.r.hget(self.key, value))
+            return bool(self.r.hget(self.key, value_hash))
         if self.type == 'list':
             for v in self.r.lrange(self.key, 0, -1):
-                if value == v:
+                if value_hash == v:
                     return True
             return False
         raise RedisKeyTypeNotFoundError(self.type)
@@ -114,22 +121,28 @@ class RedisKey():
             return self.r.hlen(self.key)
         raise RedisKeyTypeNotFoundError(self.type)
 
-    def __add__(self, value, *, index=None):
-        if not isinstance(value, RedisKey):
-            if not isinstance(value, bytes):
-                value = binascii.unhexlify(value)
-        else:
-            for v in value:  # todo use set op
-                ic(v)
-                #import IPython
-                #IPython.embed()
+    def __add__(self, value: str, *,
+                index=None):
+        value_hash = generate_truncated_string_hash(string=value,
+                                                    algorithm=self.algorithm,
+                                                    length=self.hash_length,
+                                                    verbose=self.verbose,
+                                                    debug=self.debug,)
+        #if not isinstance(value, RedisKey):
+        #    if not isinstance(value, bytes):
+        #        value = binascii.unhexlify(value)
+        #else:
+        #    for v in value:  # todo use set op
+        #        ic(v)
+        #        #import IPython
+        #        #IPython.embed()
 
-                self.__add__(value=v[0], index=v[1])
-            return self
-        if self.digestlen:
-            if len(value) != self.digestlen:
-                err = "value `{0}` is {1} bytes, not {2} bytes as required by {3}".format(value, len(value), self.digestlen, self.hash)
-                raise TypeError(err)
+        #        self.__add__(value=v[0], index=v[1])
+        #    return self
+        #if self.digestlen:
+        #    if len(value) != self.digestlen:
+        #        err = "value `{0}` is {1} bytes, not {2} bytes as required by {3}".format(value, len(value), self.digestlen, self.algorithm)
+        #        raise TypeError(err)
         if self.type == 'zset':
             if index:
                 self.r.zadd(self.key, {value: index})
