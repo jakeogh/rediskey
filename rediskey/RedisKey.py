@@ -35,7 +35,7 @@ class RedisKey():
                  algorithm: str,
                  verbose: bool,
                  debug: bool,
-                 hash_length=None,):
+                 hash_length: int,):
         assert key.endswith('#')
         assert ':' in key
         self.verbose = verbose
