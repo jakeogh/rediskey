@@ -27,17 +27,17 @@ import redis
 class RedisKey():
     def __init__(self, *,
                  key,
-                 hashtype=None,
-                 keytype=None):
+                 hash_type=None,
+                 key_type=None):
         assert key.endswith('#')
         assert ':' in key
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.key = key
         self.type = self.r.type(self.key).decode('utf8')
         if self.type == 'none':
-            self.type = keytype
+            self.type = key_type
 
-        self.hash = hashtype
+        self.hash = hash_type
         if self.hash:
             self.digestlen = hashlib.new(self.hash).digest_size
             self.hexdigestlen = self.digestlen * 2

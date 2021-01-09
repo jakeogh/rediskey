@@ -53,6 +53,29 @@ except ImportError:
     ic = eprint
 
 
+def get_size_of_key(r, key):
+    key_type = r.type(key)
+    if key_type == b'zset':
+        return r.zcard(key)
+    elif key_type == b'set':
+        return r.scard(key)
+    elif key_type == b'list':
+        return r.llen(key)
+    elif key_type == b'hash':
+        return r.hlen(key)
+    else:
+        raise FileNotFoundError
+
+
+def list_keys_and_sizes(r):
+    keys = r.keys()
+    for key in keys:
+        #key_type = r.type(key)
+        length = get_size_of_key(r=r, key=key)
+        result = key.decode('utf8') + ' ', key_type.decode('utf8'), length
+        yield result
+
+
 @click.command()
 @click.argument("key", type=str, nargs=1)
 @click.argument("values", type=str, nargs=-1)
@@ -122,23 +145,24 @@ def cli(ctx,
     if count:
         print(index + 1, end=end)
 
-#        if ipython:
-#            import IPython; IPython.embed()
-
 
 @cli.command()
-#@click.argument("list-keys", type=str, nargs=-1)
 @click.pass_context
 def list_keys(ctx):
-    pass
-    for index, url in enumerate_input(iterator=None,
-                                      null=ctx.obj['null'],
-                                      progress=ctx.obj['progress'],
-                                      skip=ctx.obj['skip'],
-                                      head=ctx.obj['head'],
-                                      tail=ctx.obj['tail'],
-                                      debug=ctx.obj['debug'],
-                                      verbose=ctx.obj['verbose'],):
+    r = redis.Redis(host='127.0.0.1')
+
+    iterator = list_keys_and_sizes(r=r)
+
+    for index, value in enumerate_input(iterator=iterator,
+                                        null=ctx.obj['null'],
+                                        progress=ctx.obj['progress'],
+                                        skip=ctx.obj['skip'],
+                                        head=ctx.obj['head'],
+                                        tail=ctx.obj['tail'],
+                                        debug=ctx.obj['debug'],
+                                        verbose=ctx.obj['verbose'],):
 
         if ctx.obj['verbose']:
-            ic(index, url)
+            ic(index, value)
+
+        print(value, end=ctx.obj['end'])
