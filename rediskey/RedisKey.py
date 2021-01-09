@@ -51,7 +51,7 @@ class RedisKey():
         else:
             if key_type != self.type:
                 raise ValueError(self.type, 'does not match', key_type)
-        self.algorithm_length = hash_length
+        self.hash_length = hash_length
 
         self.algorithm = algorithm
         #if self.algorithm:
