@@ -18,9 +18,8 @@
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
 
-import os
+#import os
 import sys
-from pathlib import Path
 
 import click
 import redis
@@ -107,7 +106,6 @@ def cli(ctx,
         end = '\x00'
     if sys.stdout.isatty():
         end = '\n'
-        assert not ipython
 
     #progress = False
     if (verbose or debug):
