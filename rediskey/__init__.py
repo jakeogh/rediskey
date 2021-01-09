@@ -1,1 +1,1 @@
-from .RedisKey import RedisKey
+from .RedisKey import RedisKey, RedisKeyTypeNotFoundError

@@ -24,16 +24,22 @@ import redis
 #from kcl.printops import ceprint
 
 
+class RedisKeyTypeNotFoundError(ValueError):
+    pass
+
+
 class RedisKey():
     def __init__(self, *,
                  key,
                  hash_type=None,
-                 key_type=None):
+                 key_type=None,
+                 hash_length=None,):
         assert key.endswith('#')
         assert ':' in key
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.key = key
         self.type = self.r.type(self.key).decode('utf8')
+        self.hash_length = hash_length
         if self.type == 'none':
             self.type = key_type
 
@@ -66,7 +72,7 @@ class RedisKey():
         if self.type == 'list':
             for v in self.r.lrange(self.key, 0, -1):
                 yield v
-        raise TypeError
+        raise RedisKeyTypeNotFoundError(self.type)
 
     def __contains__(self, value):
         if not isinstance(value, RedisKey):
@@ -93,7 +99,7 @@ class RedisKey():
                 if value == v:
                     return True
             return False
-        raise TypeError
+        raise RedisKeyTypeNotFoundError(self.type)
 
     def __len__(self):
         if self.type == 'zset':
@@ -104,18 +110,19 @@ class RedisKey():
             return self.r.llen(self.key)
         if self.type == 'hash':
             return self.r.hlen(self.key)
-        raise TypeError
+        raise RedisKeyTypeNotFoundError(self.type)
 
-    def __add__(self, value, index=None):
+    def __add__(self, value, *, index=None):
         if not isinstance(value, RedisKey):
             if not isinstance(value, bytes):
                 value = binascii.unhexlify(value)
         else:
             for v in value:  # todo use set op
+                ic(v)
                 #import IPython
                 #IPython.embed()
 
-                self.__add__(v[0], v[1])
+                self.__add__(value=v[0], index=v[1])
             return self
         if self.digestlen:
             if len(value) != self.digestlen:
@@ -135,4 +142,4 @@ class RedisKey():
             return self
         #if self.type == 'hash':
         #    return self
-        raise TypeError
+        raise RedisKeyTypeNotFoundError(self.type)

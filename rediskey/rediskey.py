@@ -29,7 +29,7 @@ from pkg_resources import iter_entry_points
 from retry_on_exception import retry_on_exception
 
 from rediskey import RedisKey
-
+from rediskey import RedisKeyTypeNotFoundError
 #from collections import defaultdict
 #from prettyprinter import cpprint, install_extras
 #install_extras(['attrs'])
