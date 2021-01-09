@@ -118,6 +118,9 @@ def cli(ctx,
     ctx.obj['null'] = null
     ctx.obj['progress'] = progress
     ctx.obj['count'] = count
+    ctx.obj['skip'] = skip
+    ctx.obj['head'] = head
+    ctx.obj['tail'] = tail
 
     #redis_instance = redis.StrictRedis(host='127.0.0.1')
 
