@@ -152,6 +152,8 @@ def list_key(ctx, *,
              verbose,
              debug,):
 
+    ic(skip, head, tail)
+
     ctx.obj['count'] = count
     ctx.obj['skip'] = skip
     ctx.obj['head'] = head
