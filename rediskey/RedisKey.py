@@ -54,8 +54,6 @@ class RedisKey():
             if key_type is not None:
                 if key_type != self.type:
                     raise ValueError(self.type, 'does not match', key_type)
-            else:
-                self.type = key_type
 
         self.add_disabled = False
         self.hash_length = hash_length
