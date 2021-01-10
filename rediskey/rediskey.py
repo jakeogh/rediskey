@@ -137,9 +137,9 @@ def list_keys(ctx):
 @click.argument("key", type=str, nargs=1)
 #@click.argument("values", type=str, nargs=-1)
 @click.option('--count', is_flag=True)
-@click.option('--skip', type=int, default=False)
-@click.option('--head', type=int, default=False)
-@click.option('--tail', type=int, default=False)
+@click.option('--skip', default=False)
+@click.option('--head', default=False)
+@click.option('--tail', default=False)
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.pass_context
@@ -151,6 +151,10 @@ def list_key(ctx, *,
              tail,
              verbose,
              debug,):
+
+    skip = int(skip) # ugly, @click problem https://bpa.st/K55A
+    head = int(head)
+    tail = int(tail)
 
     ic(skip, head, tail)
 
