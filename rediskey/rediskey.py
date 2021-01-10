@@ -178,10 +178,3 @@ def list_key(ctx, *,
     if ctx.obj['count']:
         print(index + 1, end=ctx.obj['end'])
 
-
-if __name__ == '__main__':
-    ic(sys.argv)
-    if sys.argv[:-1] == '--help':
-        cli.main(['--help'])
-    else:
-        cli()
