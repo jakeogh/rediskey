@@ -85,10 +85,6 @@ def list_keys_and_sizes(r):
 def cli(ctx,
         verbose,
         debug,
-        count,
-        skip,
-        head,
-        tail,
         progress,
         printn,):
 
