@@ -80,20 +80,21 @@ class RedisKey():
                 cursor, values = self.r.zscan(self.key)
                 for v in values:
                     yield v
-        if self.type == 'set':
+        elif self.type == 'set':
             while cursor != 0:
                 cursor, values = self.r.sscan(self.key)
                 for v in values:
                     yield v
-        if self.type == 'hash':
+        elif self.type == 'hash':
             while cursor != 0:
                 cursor, values = self.r.hscan(self.key)
                 for v in values:
                     yield v
-        if self.type == 'list':
+        elif self.type == 'list':
             for v in self.r.lrange(self.key, 0, -1):
                 yield v
-        raise RedisKeyTypeNotFoundError(self.type)
+        else:
+            raise RedisKeyTypeNotFoundError(self.type)
 
     def __contains__(self, value: str):
         value_hash = generate_truncated_string_hash(string=value,
