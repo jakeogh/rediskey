@@ -77,10 +77,6 @@ def list_keys_and_sizes(r):
 #@click.command()
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
-@click.option('--count', is_flag=True)
-@click.option('--skip', type=int, default=False)
-@click.option('--head', type=int, default=False)
-@click.option('--tail', type=int, default=False)
 @click.option("--printn", is_flag=True)
 @click.option("--progress", is_flag=True)
 @with_plugins(iter_entry_points('click_command_tree'))
@@ -113,10 +109,6 @@ def cli(ctx,
     ctx.obj['end'] = end
     ctx.obj['null'] = null
     ctx.obj['progress'] = progress
-    ctx.obj['count'] = count
-    ctx.obj['skip'] = skip
-    ctx.obj['head'] = head
-    ctx.obj['tail'] = tail
 
     #redis_instance = redis.StrictRedis(host='127.0.0.1')
 
@@ -147,9 +139,29 @@ def list_keys(ctx):
 @cli.command()
 @click.argument("key", type=str, nargs=1)
 #@click.argument("values", type=str, nargs=-1)
+@click.option('--count', is_flag=True)
+@click.option('--skip', type=int, default=False)
+@click.option('--head', type=int, default=False)
+@click.option('--tail', type=int, default=False)
 @click.pass_context
-def list_key(ctx, key):
-    iterator = RedisKey(key=key, algorithm="sha3_256", key_type=None, verbose=ctx.obj['verbose'], debug=ctx.obj['debug'], hash_length=None)
+def list_key(ctx, *,
+             key,
+             count,
+             skip,
+             head,
+             tail):
+
+    ctx.obj['count'] = count
+    ctx.obj['skip'] = skip
+    ctx.obj['head'] = head
+    ctx.obj['tail'] = tail
+
+    iterator = RedisKey(key=key,
+                        algorithm="sha3_256",
+                        key_type=None,
+                        verbose=ctx.obj['verbose'],
+                        debug=ctx.obj['debug'],
+                        hash_length=None,)
 
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
