@@ -139,18 +139,27 @@ def list_keys(ctx):
 @click.option('--skip', type=int, default=False)
 @click.option('--head', type=int, default=False)
 @click.option('--tail', type=int, default=False)
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
 @click.pass_context
 def list_key(ctx, *,
              key,
              count,
              skip,
              head,
-             tail):
+             tail,
+             verbose,
+             debug,):
 
     ctx.obj['count'] = count
     ctx.obj['skip'] = skip
     ctx.obj['head'] = head
     ctx.obj['tail'] = tail
+    ctx.obj['verbose'] = verbose
+    ctx.obj['debug'] = debug
+
+    if ctx.obj['verbose']:
+        ic(ctx.obj)
 
     iterator = RedisKey(key=key,
                         algorithm="sha3_256",
