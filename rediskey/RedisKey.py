@@ -47,11 +47,20 @@ class RedisKey():
         ic(key_type)
         if self.type == 'none':
             ic('new key:', key, key_type)
+            if key_type is None:
+                raise ValueError('key:', key, 'does not exist', 'key_type must be specified to create a new key')
             self.type = key_type
         else:
-            if key_type != self.type:
-                raise ValueError(self.type, 'does not match', key_type)
+            if key_type is not None:
+                if key_type != self.type:
+                    raise ValueError(self.type, 'does not match', key_type)
+            else:
+                self.type = key_type
+
+        self.add_disabled = False
         self.hash_length = hash_length
+        if self.hash_length is None:
+            self.add_disabled = True
 
         self.algorithm = algorithm
         #if self.algorithm:
@@ -129,6 +138,8 @@ class RedisKey():
 
     def __add__(self, value: str, *,
                 index=None):
+        if self.add_disabled:
+            raise ValueError('hash_length was not specified, so adding to the key is disabled')
         value_hash = generate_truncated_string_hash(string=value,
                                                     algorithm=self.algorithm,
                                                     length=self.hash_length,
