@@ -151,7 +151,7 @@ def list_keys(ctx):
 def list_key(ctx, key):
     r = redis.Redis(host='127.0.0.1')
 
-    iterator = RedisKey(key=key, algorithm="sha3_256")
+    iterator = RedisKey(key=key, algorithm="sha3_256", key_type=None, verbose=ctx.obj['verbose'], debug=ctx.obj['debug'])
 
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
