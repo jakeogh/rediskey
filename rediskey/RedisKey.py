@@ -36,8 +36,6 @@ class RedisKey():
                  verbose: bool,
                  debug: bool,
                  hash_length: int,):
-        assert key.endswith('#')
-        assert ':' in key
         self.verbose = verbose
         self.debug = debug
         self.r = redis.StrictRedis(host='127.0.0.1')
@@ -59,6 +57,12 @@ class RedisKey():
         self.hash_length = hash_length
         if self.hash_length is None:
             self.add_disabled = True
+
+        if not self.add_disabled:
+            if not key.endswith('#'):
+                raise ValueError('adding to a key is only possible if the key ends with #')
+            if not ':' in key:
+                raise ValueError('adding to a key is only possible if the key contains :')
 
         self.algorithm = algorithm
         #if self.algorithm:
