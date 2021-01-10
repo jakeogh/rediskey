@@ -120,9 +120,9 @@ def list_keys(ctx):
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
                                         progress=ctx.obj['progress'],
-                                        skip=ctx.obj['skip'],
-                                        head=ctx.obj['head'],
-                                        tail=ctx.obj['tail'],
+                                        skip=False,
+                                        head=False,
+                                        tail=False,
                                         debug=ctx.obj['debug'],
                                         verbose=ctx.obj['verbose'],):
 
