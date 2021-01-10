@@ -180,6 +180,7 @@ def list_key(ctx, *,
 
 
 if __name__ == '__main__':
+    ic(sys.argv)
     if sys.argv[:-1] == '--help':
         cli.main(['--help'])
     else:
