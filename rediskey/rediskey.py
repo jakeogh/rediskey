@@ -159,6 +159,7 @@ def list_key(ctx, *,
                         debug=ctx.obj['debug'],
                         hash_length=None,)
 
+    index = 0
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
                                         progress=ctx.obj['progress'],
@@ -176,3 +177,10 @@ def list_key(ctx, *,
 
     if ctx.obj['count']:
         print(index + 1, end=ctx.obj['end'])
+
+
+if __name__ == '__main__':
+    if sys.argv[:-1] == '--help':
+        cli.main(['--help'])
+    else:
+        cli()
