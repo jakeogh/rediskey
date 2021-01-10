@@ -149,8 +149,6 @@ def list_keys(ctx):
 #@click.argument("values", type=str, nargs=-1)
 @click.pass_context
 def list_key(ctx, key):
-    r = redis.Redis(host='127.0.0.1')
-
     iterator = RedisKey(key=key, algorithm="sha3_256", key_type=None, verbose=ctx.obj['verbose'], debug=ctx.obj['debug'], hash_length=None)
 
     for index, value in enumerate_input(iterator=iterator,
