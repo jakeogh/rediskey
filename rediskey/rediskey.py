@@ -70,7 +70,7 @@ def list_keys_and_sizes(r):
     for key in keys:
         key_type = r.type(key)
         length = get_size_of_key(r=r, key=key)
-        result = key.decode('utf8'), key_type.decode('utf8'), length
+        result = key.decode('utf8'), key_type.decode('utf8'), length, r.memory_usage(key)
         yield result
 
 
