@@ -152,10 +152,6 @@ def list_key(ctx, *,
              verbose,
              debug,):
 
-    skip = int(skip)  # ugly, @click problem https://bpa.st/K55A
-    head = int(head)
-    tail = int(tail)
-
     ic(skip, head, tail)
 
     ctx.obj['count'] = count
