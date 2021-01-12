@@ -84,10 +84,13 @@ class RedisKey():
                 for v in values:
                     yield v
         elif self.type == 'set':
+            cursor, values = self.r.sscan(self.key)
+            for v in values:
+                yield v
             while cursor != 0:
-                cursor, values = self.r.sscan(self.key)
+                cursor, values = self.r.sscan(self.key, cursor)
                 if self.debug:
-                    ic(cursor, len(values))
+                    ic(cursor, type(values), len(values))
                 for v in values:
                     yield v
         elif self.type == 'hash':
