@@ -163,6 +163,7 @@ def list_key(ctx, *,
 
     iterator = RedisKey(key=key,
                         algorithm="sha3_256",
+                        hash_values=False,
                         key_type=None,
                         verbose=ctx.obj['verbose'],
                         debug=ctx.obj['debug'],
