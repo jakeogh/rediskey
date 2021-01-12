@@ -73,10 +73,10 @@ class RedisKey():
         #    assert len(self.emptydigest) == self.digestlen
         #    assert len(self.emptyhexdigest) == self.hexdigestlen
 
-    def __iter__(self):
-        return self
+    #def __iter__(self):
+    #    return self
 
-    def __next__(self):
+    def __iter__(self):
         cursor = None
         if self.type == 'zset':
             while cursor != 0:
