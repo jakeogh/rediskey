@@ -170,7 +170,7 @@ def list_key(ctx, *,
                         verbose=ctx.obj['verbose'],
                         debug=ctx.obj['debug'],
                         hash_length=None,)
-
+    import IPython; IPython.embed()
     index = 0
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
