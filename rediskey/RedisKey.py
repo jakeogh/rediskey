@@ -30,8 +30,9 @@ class RedisKeyTypeNotFoundError(ValueError):
 
 class RedisKey():
     def __init__(self, *,
-                 key,
-                 key_type,
+                 key: str,
+                 key_type: str,
+                 hash_values: bool,
                  algorithm: str,
                  verbose: bool,
                  debug: bool,
@@ -61,10 +62,14 @@ class RedisKey():
         if not self.add_disabled:
             if not key.endswith('#'):
                 raise ValueError('adding to a key is only possible if the key ends with #')
-            if not ':' in key:
+            if ':' not in key:
                 raise ValueError('adding to a key is only possible if the key contains :')
 
         self.algorithm = algorithm
+        self.hash_values = hash_values
+        if self.hash_values:
+            if not self.algorithm:
+                raise ValueError('hash_values is True, an algorithm must be specified')
         #if self.algorithm:
         #    self.digestlen = hashlib.new(self.algorithm).digest_size
         #    self.hexdigestlen = self.digestlen * 2
@@ -73,16 +78,8 @@ class RedisKey():
         #    assert len(self.emptydigest) == self.digestlen
         #    assert len(self.emptyhexdigest) == self.hexdigestlen
 
-    #def __iter__(self):
-    #    return self
-
     def __iter__(self):
         cursor = None
-        #if self.type == 'zset':
-        #    while cursor != 0:
-        #        cursor, values = self.r.zscan(self.key)
-        #        for v in values:
-        #            yield v
         if self.type in ['set', 'zset', 'hash']:
             if self.type == 'set':
                 func = 'sscan'
@@ -94,23 +91,16 @@ class RedisKey():
                 raise ValueError(self.type)
             function = getattr(self.r, func)
             cursor, values = function(self.key)
-            #cursor, values = self.r.sscan(self.key)
             if self.debug:
                 ic(cursor, type(values), len(values))
             for v in values:
                 yield v
             while cursor != 0:
-                #cursor, values = self.r.sscan(self.key, cursor)
                 cursor, values = function(self.key, cursor)
                 if self.debug:
                     ic(cursor, type(values), len(values))
                 for v in values:
                     yield v
-        #elif self.type == 'hash':
-        #    while cursor != 0:
-        #        cursor, values = self.r.hscan(self.key)
-        #        for v in values:
-        #            yield v
         elif self.type == 'list':
             for v in self.r.lrange(self.key, 0, -1):
                 yield v
@@ -118,33 +108,23 @@ class RedisKey():
             raise RedisKeyTypeNotFoundError(self.type)
 
     def __contains__(self, value: str):
-        value_hash = generate_truncated_string_hash(string=value,
-                                                    algorithm=self.algorithm,
-                                                    length=self.hash_length,
-                                                    verbose=self.verbose,
-                                                    debug=self.debug,)
-        #if not isinstance(value, RedisKey):
-        #    if not isinstance(value, bytes):
-        #        value = binascii.unhexlify(value)
-        #else:
-        #    for v in value:  # todo use set op
-        #        if isinstance(v, tuple):
-        #            v = v[0]
-        #        #import IPython
-        #        #IPython.embed()
-        #        if not self.__contains__(v):
-        #            return False
-        #    return True
+        if self.hash_values:
+            value = generate_truncated_string_hash(string=value,
+                                                   algorithm=self.algorithm,
+                                                   length=self.hash_length,
+                                                   verbose=self.verbose,
+                                                   debug=self.debug,)
+            #value = binascii.unhexlify(value)
 
         if self.type == 'zset':
-            return bool(self.r.zscore(self.key, value_hash))
+            return bool(self.r.zscore(self.key, value))
         if self.type == 'set':
-            return bool(self.r.sismember(self.key, value_hash))
+            return bool(self.r.sismember(self.key, value))
         if self.type == 'hash':
-            return bool(self.r.hget(self.key, value_hash))
+            return bool(self.r.hget(self.key, value))
         if self.type == 'list':
             for v in self.r.lrange(self.key, 0, -1):
-                if value_hash == v:
+                if value == v:
                     return True
             return False
         raise RedisKeyTypeNotFoundError(self.type)
@@ -164,37 +144,24 @@ class RedisKey():
                 index=None):
         if self.add_disabled:
             raise ValueError('hash_length was not specified, so adding to the key is disabled')
-        value_hash = generate_truncated_string_hash(string=value,
-                                                    algorithm=self.algorithm,
-                                                    length=self.hash_length,
-                                                    verbose=self.verbose,
-                                                    debug=self.debug,)
-        #if not isinstance(value, RedisKey):
-        #    if not isinstance(value, bytes):
-        #        value = binascii.unhexlify(value)
-        #else:
-        #    for v in value:  # todo use set op
-        #        ic(v)
-        #        #import IPython
-        #        #IPython.embed()
-
-        #        self.__add__(value=v[0], index=v[1])
-        #    return self
-        #if self.digestlen:
-        #    if len(value) != self.digestlen:
-        #        err = "value `{0}` is {1} bytes, not {2} bytes as required by {3}".format(value, len(value), self.digestlen, self.algorithm)
-        #        raise TypeError(err)
+        if self.hash_values:
+            value = generate_truncated_string_hash(string=value,
+                                                   algorithm=self.algorithm,
+                                                   length=self.hash_length,
+                                                   verbose=self.verbose,
+                                                   debug=self.debug,)
+            #value = binascii.unhexlify(value)
         if self.type == 'zset':
             if index:
-                self.r.zadd(self.key, {value_hash: index})
+                self.r.zadd(self.key, {value: index})
             else:
-                self.r.zadd(self.key, {value_hash: time.time()})
+                self.r.zadd(self.key, {value: time.time()})
             return self
         if self.type == 'set':
-            self.r.sadd(self.key, value_hash)
+            self.r.sadd(self.key, value)
             return self
         if self.type == 'list':
-            self.r.rpush(self.key, value_hash)
+            self.r.rpush(self.key, value)
             return self
         #if self.type == 'hash':
         #    return self
