@@ -78,28 +78,39 @@ class RedisKey():
 
     def __iter__(self):
         cursor = None
-        if self.type == 'zset':
-            while cursor != 0:
-                cursor, values = self.r.zscan(self.key)
-                for v in values:
-                    yield v
-        elif self.type == 'set':
-            cursor, values = self.r.sscan(self.key)
+        #if self.type == 'zset':
+        #    while cursor != 0:
+        #        cursor, values = self.r.zscan(self.key)
+        #        for v in values:
+        #            yield v
+        if self.type in ['set', 'zset', 'hash']:
+            if self.type == 'set':
+                func = 'sscan'
+            elif self.type == 'zset':
+                func = 'zscan'
+            elif self.type == 'hash':
+                func = 'hscan'
+            else:
+                raise ValueError(self.type)
+            function = getattr(self.r, func)
+            cursor, values = function(self.key)
+            #cursor, values = self.r.sscan(self.key)
             if self.debug:
                 ic(cursor, type(values), len(values))
             for v in values:
                 yield v
             while cursor != 0:
-                cursor, values = self.r.sscan(self.key, cursor)
+                #cursor, values = self.r.sscan(self.key, cursor)
+                cursor, values = function(self.key, cursor)
                 if self.debug:
                     ic(cursor, type(values), len(values))
                 for v in values:
                     yield v
-        elif self.type == 'hash':
-            while cursor != 0:
-                cursor, values = self.r.hscan(self.key)
-                for v in values:
-                    yield v
+        #elif self.type == 'hash':
+        #    while cursor != 0:
+        #        cursor, values = self.r.hscan(self.key)
+        #        for v in values:
+        #            yield v
         elif self.type == 'list':
             for v in self.r.lrange(self.key, 0, -1):
                 yield v

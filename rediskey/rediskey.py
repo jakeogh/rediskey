@@ -152,8 +152,6 @@ def list_key(ctx, *,
              verbose,
              debug,):
 
-    ic(skip, head, tail)
-
     ctx.obj['count'] = count
     ctx.obj['skip'] = skip
     ctx.obj['head'] = head
@@ -162,7 +160,7 @@ def list_key(ctx, *,
     ctx.obj['debug'] = debug
 
     if ctx.obj['verbose']:
-        ic(ctx.obj)
+        ic(ctx.obj, skip, head, tail)
 
     iterator = RedisKey(key=key,
                         algorithm="sha3_256",
