@@ -68,7 +68,7 @@ def get_size_of_key(r, key):
 def get_key_memory_used(r, *, key):
     bytes_used = r.memory_usage(key)
     k_bytes_used = '{}kB'.format(round(bytes_used / 1024, 2))
-    M_bytes_used = '{}MB'.format(rount(bytes_used / 1024 / 1024, 2))
+    M_bytes_used = '{}MB'.format(round(bytes_used / 1024 / 1024, 2))
     return bytes_used, k_bytes_used, M_bytes_used
 
 def list_keys_and_sizes(r):
