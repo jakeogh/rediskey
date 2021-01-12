@@ -41,8 +41,8 @@ class RedisKey():
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.key = key
         self.type = self.r.type(self.key).decode('utf8')
-        ic(self.type)
-        ic(key_type)
+        #ic(self.type)
+        #ic(key_type)
         if self.type == 'none':
             ic('new key:', key, key_type)
             if key_type is None:

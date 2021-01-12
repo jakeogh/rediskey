@@ -106,9 +106,8 @@ def cli(ctx,
     ctx.obj['null'] = null
     ctx.obj['progress'] = progress
 
-    ic(ctx.obj)
-    #redis_instance = redis.StrictRedis(host='127.0.0.1')
-
+    if verbose:
+        ic(ctx.obj)
 
 
 @cli.command()
