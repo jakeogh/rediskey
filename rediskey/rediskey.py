@@ -65,12 +65,18 @@ def get_size_of_key(r, key):
     raise RedisKeyTypeNotFoundError(key_type)
 
 
+def get_key_memory_used(r, *, key):
+    bytes_used = r.memory_usage(key)
+    k_bytes_used = '{}kB'.format(bytes_used / 1024)
+    M_bytes_used = '{}MB'.format(bytes_used / 1024 / 1024)
+    return bytes_used, k_bytes_used, M_bytes_used
+
 def list_keys_and_sizes(r):
     keys = r.keys()
     for key in keys:
         key_type = r.type(key)
         length = get_size_of_key(r=r, key=key)
-        result = key.decode('utf8'), key_type.decode('utf8'), length, r.memory_usage(key)
+        result = key.decode('utf8'), key_type.decode('utf8'), length, *get_key_memory_used(r, key=key)
         yield result
 
 
