@@ -74,6 +74,9 @@ class RedisKey():
         #    assert len(self.emptyhexdigest) == self.hexdigestlen
 
     def __iter__(self):
+        return self
+
+    def __next__(self):
         cursor = None
         if self.type == 'zset':
             while cursor != 0:
@@ -83,6 +86,8 @@ class RedisKey():
         elif self.type == 'set':
             while cursor != 0:
                 cursor, values = self.r.sscan(self.key)
+                if self.debug:
+                    ic(cursor, len(values))
                 for v in values:
                     yield v
         elif self.type == 'hash':
@@ -165,15 +170,15 @@ class RedisKey():
         #        raise TypeError(err)
         if self.type == 'zset':
             if index:
-                self.r.zadd(self.key, {value: index})
+                self.r.zadd(self.key, {value_hash: index})
             else:
-                self.r.zadd(self.key, {value: time.time()})
+                self.r.zadd(self.key, {value_hash: time.time()})
             return self
         if self.type == 'set':
-            self.r.sadd(self.key, value)
+            self.r.sadd(self.key, value_hash)
             return self
         if self.type == 'list':
-            self.r.rpush(self.key, value)
+            self.r.rpush(self.key, value_hash)
             return self
         #if self.type == 'hash':
         #    return self
