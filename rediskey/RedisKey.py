@@ -45,7 +45,8 @@ class RedisKey():
         #ic(self.type)
         #ic(key_type)
         if self.type == 'none':
-            ic('new key:', key, key_type)
+            if self.verbose:
+                ic('uncreated new key:', key, key_type)
             if key_type is None:
                 raise ValueError('key:', key, 'does not exist', 'key_type must be specified to create a new key')
             self.type = key_type
