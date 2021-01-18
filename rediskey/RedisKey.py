@@ -141,6 +141,7 @@ class RedisKey():
         raise RedisKeyTypeNotFoundError(self.type)
 
     def __add__(self, *value: str, index=None):
+        ic(value)
         if self.add_disabled:
             raise ValueError('hash_length was not specified, so adding to the key is disabled')
         if self.hash_values:
