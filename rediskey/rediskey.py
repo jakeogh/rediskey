@@ -193,3 +193,46 @@ def list_key(ctx, *,
     if ctx.obj['count']:
         print(index + 1, end=ctx.obj['end'])
 
+
+@cli.command()
+@click.argument("keys", type=str, nargs=-1)
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+@click.pass_context
+def delete_key(ctx, *,
+               keys,
+               verbose,
+               debug,):
+
+    ctx.obj['verbose'] = verbose
+    ctx.obj['debug'] = debug
+
+    if ctx.obj['verbose']:
+        ic(ctx.obj, keys)
+
+    iterator = keys
+
+    index = 0
+    for index, key in enumerate_input(iterator=iterator,
+                                      null=ctx.obj['null'],
+                                      progress=ctx.obj['progress'],
+                                      skip=None,
+                                      head=None,
+                                      tail=None,
+                                      debug=ctx.obj['debug'],
+                                      verbose=ctx.obj['verbose'],):
+
+        if ctx.obj['verbose']:
+            ic(index, key)
+
+        redis_instance = RedisKey(key=key,
+                                  algorithm="sha3_256",
+                                  hash_values=False,
+                                  key_type=None,
+                                  verbose=ctx.obj['verbose'],
+                                  debug=ctx.obj['debug'],
+                                  hash_length=None,)
+
+        result = redis_instance.delete(key)
+
+        print(key, result, end=ctx.obj['end'])

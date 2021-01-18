@@ -169,3 +169,6 @@ class RedisKey():
 
     def exists(self):
         return self.r.exists(self.key)
+
+    def delete(self):
+        return self.r.delete(self.key)
