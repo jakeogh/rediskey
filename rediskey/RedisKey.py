@@ -140,8 +140,7 @@ class RedisKey():
             return self.r.hlen(self.key)
         raise RedisKeyTypeNotFoundError(self.type)
 
-    def __add__(self, value: str, *,
-                index=None):
+    def __add__(self, *value: str, index=None):
         if self.add_disabled:
             raise ValueError('hash_length was not specified, so adding to the key is disabled')
         if self.hash_values:
