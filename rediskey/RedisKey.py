@@ -166,3 +166,6 @@ class RedisKey():
         #if self.type == 'hash':
         #    return self
         raise RedisKeyTypeNotFoundError(self.type)
+
+    def exists(delf):
+        return self.r.exists(self.key)
