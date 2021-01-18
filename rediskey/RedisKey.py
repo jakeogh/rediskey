@@ -167,5 +167,5 @@ class RedisKey():
         #    return self
         raise RedisKeyTypeNotFoundError(self.type)
 
-    def exists(delf):
+    def exists(self):
         return self.r.exists(self.key)
