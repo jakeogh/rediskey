@@ -233,6 +233,6 @@ def delete_key(ctx, *,
                                   debug=ctx.obj['debug'],
                                   hash_length=None,)
 
-        result = redis_instance.delete(key)
+        result = redis_instance.delete()
 
         print(key, result, end=ctx.obj['end'])
