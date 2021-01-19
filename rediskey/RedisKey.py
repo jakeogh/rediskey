@@ -21,6 +21,8 @@ import time
 
 import redis
 from icecream import ic
+from redis.exceptions import ResponseError
+from retry_on_exception import retry_on_exception
 from uniquepipe import generate_truncated_string_hash
 
 
@@ -141,6 +143,8 @@ class RedisKey():
             return self.r.hlen(self.key)
         raise RedisKeyTypeNotFoundError(self.type)
 
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     def __add__(self, *value: str, index=None):
         #ic(value)
         if self.add_disabled:
