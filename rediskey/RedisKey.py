@@ -31,7 +31,9 @@ class RedisKeyTypeNotFoundError(ValueError):
 
 
 class RedisKey():
-    @retry_on_exception(exception=ConnecetionError,)
+    @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     def __init__(self, *,
                  key: str,
                  key_type: str,
@@ -82,6 +84,7 @@ class RedisKey():
         #    assert len(self.emptydigest) == self.digestlen
         #    assert len(self.emptyhexdigest) == self.hexdigestlen
 
+    @retry_on_exception(exception=ConnectionError,)
     def __iter__(self):
         cursor = None
         if self.type in ['set', 'zset', 'hash']:
@@ -111,6 +114,7 @@ class RedisKey():
         else:
             raise RedisKeyTypeNotFoundError(self.type)
 
+    @retry_on_exception(exception=ConnectionError,)
     def __contains__(self, value: str):
         if self.hash_values:
             value = generate_truncated_string_hash(string=value,
@@ -133,6 +137,7 @@ class RedisKey():
             return False
         raise RedisKeyTypeNotFoundError(self.type)
 
+    @retry_on_exception(exception=ConnectionError,)
     def __len__(self):
         if self.type == 'zset':
             return self.r.zcard(self.key)
@@ -144,6 +149,7 @@ class RedisKey():
             return self.r.hlen(self.key)
         raise RedisKeyTypeNotFoundError(self.type)
 
+    @retry_on_exception(exception=ConnectionError,)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     def __add__(self, *value: str, index=None):
@@ -173,8 +179,12 @@ class RedisKey():
         #    return self
         raise RedisKeyTypeNotFoundError(self.type)
 
+    @retry_on_exception(exception=ConnectionError,)
     def exists(self):
         return self.r.exists(self.key)
 
+    @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     def delete(self):
         return self.r.delete(self.key)
