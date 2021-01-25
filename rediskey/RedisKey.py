@@ -21,7 +21,7 @@ import time
 
 import redis
 from icecream import ic
-from redis.exceptions import ResponseError
+from redis.exceptions import ConnectionError, ResponseError
 from retry_on_exception import retry_on_exception
 from uniquepipe import generate_truncated_string_hash
 
@@ -31,6 +31,7 @@ class RedisKeyTypeNotFoundError(ValueError):
 
 
 class RedisKey():
+    @retry_on_exception(exception=ConnecetionError,)
     def __init__(self, *,
                  key: str,
                  key_type: str,
