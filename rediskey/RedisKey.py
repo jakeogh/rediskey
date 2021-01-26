@@ -34,6 +34,8 @@ class RedisKey():
     @retry_on_exception(exception=ConnectionError,)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
     def __init__(self, *,
                  key: str,
                  key_type: str,
@@ -152,6 +154,8 @@ class RedisKey():
     @retry_on_exception(exception=ConnectionError,)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
     def __add__(self, *value: str, index=None):
         #ic(value)
         if self.add_disabled:
@@ -186,5 +190,7 @@ class RedisKey():
     @retry_on_exception(exception=ConnectionError,)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
     def delete(self):
         return self.r.delete(self.key)
