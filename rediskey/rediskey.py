@@ -92,6 +92,7 @@ def namespaces_and_sizes(r):
     namespace_types: DefaultDict[str, set] = defaultdict(set)
     broken_namespaces = set()
     for result in keys_and_sizes(r):
+        ic(result)
         key, key_type, length, key_memory_used = result[:]
         if '#' in key:
             namespace = key.split('#')[0]
