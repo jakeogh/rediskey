@@ -93,13 +93,13 @@ def namespaces_and_sizes(r):
     broken_namespaces = set()
     for result in keys_and_sizes(r):
         ic(result)
-        key, key_type, length, key_memory_used = result[:]
+        key, key_type, length, key_memory_used_bytes, key_memory_used_kbytes, key_memory_used_mbytes = result[:]
         if '#' in key:
             namespace = key.split('#')[0]
             namespaces.add(namespace)
             namespace_count[namespace] += 1
             #try:
-            namespace_size[namespace] += key_memory_used
+            namespace_size[namespace] += key_memory_used_bytes
             #except TypeError:
             #    pass
             namespace_values[namespace] += length
