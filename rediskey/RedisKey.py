@@ -175,7 +175,6 @@ class RedisKey():
             #value = binascii.unhexlify(value)
         if self.type == 'zset':
             if index:
-                ic(value, index)
                 mapping = {value[0]: index}
             else:
                 mapping = {value[0]: time.time()}
