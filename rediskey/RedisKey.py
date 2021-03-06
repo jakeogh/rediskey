@@ -211,6 +211,22 @@ class RedisKey():
         raise RedisKeyTypeNotFoundError(self.type)
 
     @retry_on_exception(exception=ConnectionError,)
+    def last(self):
+        #ic(value)
+        if self.type == 'zset':
+            result = self.r.zrange(self.key, -1, -1)
+            return result
+        if self.type == 'set':
+            raise ValueError('key {} is of type `set`, therefore it has no last member')
+        if self.type == 'list':
+            #ic(self.key, *value)
+            result = self.r.lindex(self.key, -1)
+            return result
+        #if self.type == 'hash':
+        #    return result
+        raise RedisKeyTypeNotFoundError(self.type)
+
+    @retry_on_exception(exception=ConnectionError,)
     def exists(self):
         return self.r.exists(self.key)
 
