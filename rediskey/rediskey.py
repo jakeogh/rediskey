@@ -209,7 +209,7 @@ def list_namespaces(ctx):
 @click.option('--skip', default=None)
 @click.option('--head', default=None)
 @click.option('--tail', default=None)
-@click.option('--first', default=None)
+@click.option('--first', is_flag=True)
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.pass_context
