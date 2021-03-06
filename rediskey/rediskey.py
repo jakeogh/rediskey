@@ -41,8 +41,6 @@ from rediskey import RedisKeyTypeNotFoundError
 # from pudb import set_trace; set_trace(paused=False)
 
 
-
-
 def eprint(*args, **kwargs):
     if 'file' in kwargs.keys():
         kwargs.pop('file')
@@ -300,3 +298,51 @@ def delete_key(ctx, *,
         result = redis_instance.delete()
 
         print(key, result, end=ctx.obj['end'])
+
+
+@cli.command()
+@click.argument("key", type=str, nargs=1)
+@click.argument("values", type=str, nargs=-1)
+@click.option('--key-type', type=click.Choice(['list', 'set', 'zset', 'hash']))
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+@click.pass_context
+def add(ctx, *,
+        key,
+        values,
+        key_type,
+        verbose,
+        debug,):
+
+    ctx.obj['verbose'] = verbose
+    ctx.obj['debug'] = debug
+
+    if ctx.obj['verbose']:
+        ic(ctx.obj, key)
+
+    iterator = values
+
+    redis_instance = RedisKey(key=key,
+                              algorithm="sha3_256",
+                              hash_values=False,
+                              key_type=key_type,
+                              verbose=ctx.obj['verbose'],
+                              debug=ctx.obj['debug'],
+                              hash_length=None,)
+
+    index = 0
+    for index, value in enumerate_input(iterator=iterator,
+                                        null=ctx.obj['null'],
+                                        progress=ctx.obj['progress'],
+                                        skip=None,
+                                        head=None,
+                                        tail=None,
+                                        debug=ctx.obj['debug'],
+                                        verbose=ctx.obj['verbose'],):
+
+        if ctx.obj['verbose']:
+            ic(index, value)
+
+        result = redis_instance.add(value)
+
+        print(key, result, value, end=ctx.obj['end'])
