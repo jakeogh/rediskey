@@ -95,7 +95,7 @@ class RedisKey():
     @retry_on_exception(exception=ConnectionError,)
     def __iter__(self):
         cursor = None
-        if self.type in ['set', 'zset', 'hash']:
+        if self.type in ['set', 'hash']:
             if self.type == 'set':
                 func = 'sscan'
             elif self.type == 'hash':
