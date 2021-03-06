@@ -21,7 +21,8 @@ import time
 
 import redis
 from icecream import ic
-from redis.exceptions import ConnectionError, ResponseError
+from redis.exceptions import ConnectionError
+from redis.exceptions import ResponseError
 from retry_on_exception import retry_on_exception
 from uniquepipe import generate_truncated_string_hash
 
@@ -156,7 +157,7 @@ class RedisKey():
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
-    def __add__(self, *value: str, index=None):
+    def add(self, *value: str, index=None):
         #ic(value)
         if self.add_disabled:
             raise ValueError('hash_length was not specified, so adding to the key is disabled')
