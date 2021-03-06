@@ -96,8 +96,9 @@ def namespaces_and_sizes(r):
         key, key_type, length, key_memory_used_bytes, key_memory_used_kbytes, key_memory_used_mbytes = result[:]
         if '#' in key:
             namespace = key.split('#')[0]
-            namespaces.add(namespace)
-            ic(namespace)
+            if namespace not in namespaces:  # redundant for a set, ust to print them while working
+                ic(namespace)
+                namespaces.add(namespace)
             namespace_count[namespace] += 1
             #try:
             namespace_size[namespace] += key_memory_used_bytes
