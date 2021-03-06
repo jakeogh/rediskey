@@ -75,7 +75,8 @@ class RedisKey():
         self.add_disabled = False
         self.hash_length = hash_length
         if self.hash_length is None:
-            self.add_disabled = True
+            if self.hash_values:
+                self.add_disabled = True
 
         if not self.add_disabled:
             if not key.endswith('#'):
@@ -164,7 +165,7 @@ class RedisKey():
     def add(self, *value: str, index=None):
         #ic(value)
         if self.add_disabled:
-            raise ValueError('hash_length was not specified, so adding to the key is disabled')
+            raise ValueError('hash_length was not specified and hash_values is True, so adding to the key is disabled')
         if self.hash_values:
             value = generate_truncated_string_hash(string=value,
                                                    algorithm=self.algorithm,
