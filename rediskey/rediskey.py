@@ -28,10 +28,12 @@ import redis
 from click_plugins import with_plugins
 from enumerate_input import enumerate_input
 from pkg_resources import iter_entry_points
-from retry_on_exception import retry_on_exception
 
 from rediskey import RedisKey
 from rediskey import RedisKeyTypeNotFoundError
+
+#from retry_on_exception import retry_on_exception
+
 
 #from collections import defaultdict
 #from prettyprinter import cpprint, install_extras
