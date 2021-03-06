@@ -179,15 +179,15 @@ class RedisKey():
             else:
                 mapping = {value[0]: time.time()}
 
-            ic(self.key, mapping)
+            #ic(self.key, mapping)
             result = self.r.zadd(self.key, mapping)  # fixme
             return result
         if self.type == 'set':
-            ic(self.key, *value)
+            #ic(self.key, *value)
             result = self.r.sadd(self.key, *value)
             return result
         if self.type == 'list':
-            ic(self.key, *value)
+            #ic(self.key, *value)
             result = self.r.rpush(self.key, *value)
             return result
         #if self.type == 'hash':
