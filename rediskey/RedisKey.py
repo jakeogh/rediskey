@@ -175,15 +175,15 @@ class RedisKey():
             #value = binascii.unhexlify(value)
         if self.type == 'zset':
             if index:
-                result = self.r.zadd(self.key, {value: index})   # fixme
+                result = self.r.zadd(name=self.key, mapping={value: index})   # fixme
             else:
-                result = self.r.zadd(self.key, {value: time.time()})  # fixme
+                result = self.r.zadd(name=self.key, mapping={value: time.time()})  # fixme
             return result
         if self.type == 'set':
-            result = self.r.sadd(self.key, *value)
+            result = self.r.sadd(name=self.key, *value)
             return result
         if self.type == 'list':
-            result = self.r.rpush(self.key, *value)
+            result = self.r.rpush(name=self.key, *value)
             return result
         #if self.type == 'hash':
         #    return result
