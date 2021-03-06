@@ -162,7 +162,7 @@ class RedisKey():
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
-    def add(self, *value: str, index=None):
+    def add(self, *value: str, index=None, verbose=False):
         #ic(value)
         if self.add_disabled:
             raise ValueError('hash_length was not specified and hash_values is True, so adding to the key is disabled')
@@ -179,7 +179,8 @@ class RedisKey():
             else:
                 mapping = {value[0]: time.time()}
 
-            #ic(self.key, mapping)
+            if verbose:
+                ic(self.key, mapping)
             result = self.r.zadd(self.key, mapping)
             return result
         if self.type == 'set':
