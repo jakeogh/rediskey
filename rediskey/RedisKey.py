@@ -63,6 +63,15 @@ class RedisKey():
                 if key_type != self.type:
                     raise ValueError(self.type, 'does not match', key_type)
 
+        self.algorithm = algorithm
+        self.hash_values = hash_values
+        if self.hash_values:
+            if not self.algorithm:
+                raise ValueError('hash_values is True, an algorithm must be specified')
+        if self.algorithm:
+            if not self.hash_values:
+                raise ValueError('algorithm is {}, but hash_values is not set'.format(self.algorithm))
+
         self.add_disabled = False
         self.hash_length = hash_length
         if self.hash_length is None:
@@ -74,11 +83,6 @@ class RedisKey():
             if ':' not in key:
                 raise ValueError('adding to a key is only possible if the key contains :')
 
-        self.algorithm = algorithm
-        self.hash_values = hash_values
-        if self.hash_values:
-            if not self.algorithm:
-                raise ValueError('hash_values is True, an algorithm must be specified')
         #if self.algorithm:
         #    self.digestlen = hashlib.new(self.algorithm).digest_size
         #    self.hexdigestlen = self.digestlen * 2
