@@ -210,6 +210,7 @@ def list_namespaces(ctx):
 @click.option('--head', default=None)
 @click.option('--tail', default=None)
 @click.option('--first', is_flag=True)
+@click.option('--last', is_flag=True)
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.pass_context
@@ -220,6 +221,7 @@ def list_key(ctx, *,
              head,
              tail,
              first,
+             last,
              verbose,
              debug,):
 
@@ -240,9 +242,18 @@ def list_key(ctx, *,
                         verbose=ctx.obj['verbose'],
                         debug=ctx.obj['debug'],
                         hash_length=None,)
+    if first or last:
+        if count:
+            raise ValueError('--count is mutually exclusive with --first/--last')
+    if first and last:
+        raise ValueError('--first and --last are mutually exclusive')
+
     if first:
-        assert not count
         value = iterator.first()
+        print(value, end=ctx.obj['end'])
+        return
+    if last:
+        value = iterator.last()
         print(value, end=ctx.obj['end'])
         return
 
