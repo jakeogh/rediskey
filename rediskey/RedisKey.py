@@ -98,8 +98,6 @@ class RedisKey():
         if self.type in ['set', 'zset', 'hash']:
             if self.type == 'set':
                 func = 'sscan'
-            elif self.type == 'zset':
-                func = 'zscan'
             elif self.type == 'hash':
                 func = 'hscan'
             else:
@@ -118,6 +116,9 @@ class RedisKey():
                     yield v
         elif self.type == 'list':
             for v in self.r.lrange(self.key, 0, -1):
+                yield v
+        elif self.type == 'zset':
+            for v in self.r.zrange(self.key, 0, -1, desc=True):
                 yield v
         else:
             raise RedisKeyTypeNotFoundError(self.type)
