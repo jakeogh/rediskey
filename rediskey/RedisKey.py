@@ -68,9 +68,9 @@ class RedisKey():
         if self.hash_values:
             if not self.algorithm:
                 raise ValueError('hash_values is True, an algorithm must be specified')
-        if self.algorithm:
-            if not self.hash_values:
-                raise ValueError('algorithm is {}, but hash_values is not set'.format(self.algorithm))
+        #if self.algorithm:
+        #    if not self.hash_values:
+        #        raise ValueError('algorithm is {}, but hash_values is not set'.format(self.algorithm))
 
         self.add_disabled = False
         self.hash_length = hash_length

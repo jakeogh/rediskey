@@ -306,6 +306,7 @@ def delete_key(ctx, *,
 @click.argument("key", type=str, nargs=1)
 @click.argument("values", type=str, nargs=-1)
 @click.option('--key-type', type=click.Choice(['list', 'set', 'zset', 'hash']))
+@click.option('--hash-values', is_flag=True)
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.pass_context
@@ -313,6 +314,7 @@ def add(ctx, *,
         key,
         values,
         key_type,
+        hash_values,
         verbose,
         debug,):
 
@@ -326,7 +328,7 @@ def add(ctx, *,
 
     redis_instance = RedisKey(key=key,
                               algorithm="sha3_256",
-                              hash_values=False,
+                              hash_values=hash_values,
                               key_type=key_type,
                               verbose=ctx.obj['verbose'],
                               debug=ctx.obj['debug'],
