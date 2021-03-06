@@ -209,6 +209,7 @@ def list_namespaces(ctx):
 @click.option('--skip', default=None)
 @click.option('--head', default=None)
 @click.option('--tail', default=None)
+@click.option('--first', default=None)
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.pass_context
@@ -218,6 +219,7 @@ def list_key(ctx, *,
              skip,
              head,
              tail,
+             first,
              verbose,
              debug,):
 
@@ -238,6 +240,12 @@ def list_key(ctx, *,
                         verbose=ctx.obj['verbose'],
                         debug=ctx.obj['debug'],
                         hash_length=None,)
+    if first:
+        assert not count
+        value = iterator.first()
+        print(value, end=ctx.obj['end'])
+        return
+
     index = 0
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],

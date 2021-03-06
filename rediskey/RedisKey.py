@@ -180,7 +180,7 @@ class RedisKey():
                 mapping = {value[0]: time.time()}
 
             #ic(self.key, mapping)
-            result = self.r.zadd(self.key, mapping)  # fixme
+            result = self.r.zadd(self.key, mapping)
             return result
         if self.type == 'set':
             #ic(self.key, *value)
@@ -189,6 +189,22 @@ class RedisKey():
         if self.type == 'list':
             #ic(self.key, *value)
             result = self.r.rpush(self.key, *value)
+            return result
+        #if self.type == 'hash':
+        #    return result
+        raise RedisKeyTypeNotFoundError(self.type)
+
+    @retry_on_exception(exception=ConnectionError,)
+    def first(self):
+        #ic(value)
+        if self.type == 'zset':
+            result = self.r.zrange(self.key, 0, 0)
+            return result
+        if self.type == 'set':
+            raise ValueError('key {} is of type `set`, therefore it has no first member')
+        if self.type == 'list':
+            #ic(self.key, *value)
+            result = self.r.lindex(self.key, 0)
             return result
         #if self.type == 'hash':
         #    return result
