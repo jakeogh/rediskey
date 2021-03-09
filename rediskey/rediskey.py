@@ -330,7 +330,7 @@ def delete_key(ctx, *,
 
 
 # from:  https://stackoverflow.com/questions/21975228/redis-python-how-to-delete-all-keys-according-to-a-specific-pattern-in-python
-@click.command()
+@cli.command()
 @click.argument("ns", type=str, nargs=1)
 @click.option("--delete", is_flag=True)
 def delete_namespace(ns, delete):
