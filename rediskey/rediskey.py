@@ -25,6 +25,12 @@ from typing import DefaultDict
 
 import click
 import redis
+from redis import StrictRedis
+
+cache = StrictRedis()
+CHUNK_SIZE = 5000
+
+
 from click_plugins import with_plugins
 from enumerate_input import enumerate_input
 from pkg_resources import iter_entry_points
@@ -321,6 +327,31 @@ def delete_key(ctx, *,
         result = redis_instance.delete()
 
         print(key, result, end=ctx.obj['end'])
+
+
+# from:  https://stackoverflow.com/questions/21975228/redis-python-how-to-delete-all-keys-according-to-a-specific-pattern-in-python
+@click.command()
+@click.argument("ns", type=str, nargs=1)
+@click.option("--delete", is_flag=True)
+def delete_namespace(ns, delete):
+    """
+    Clears a namespace
+    :param ns: str, namespace i.e your:prefix
+    :return: int, cleared keys
+    """
+    cursor = '0'
+    ns_keys = ns + '*'
+    assert ns.endswith('#')
+    while cursor != 0:
+        cursor, keys = cache.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
+        if keys:
+            for key in keys:
+                if not delete:
+                    print("would delete:", key)
+                else:
+                    print("deleting:", key)
+            if delete:
+                cache.delete(*keys)
 
 
 @cli.command()
