@@ -39,12 +39,13 @@ class RedisKey():
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
     def __init__(self, *,
                  key: str,
-                 key_type: str,
-                 hash_values: bool,
-                 algorithm: str,
+                 key_type: str = None,
+                 hash_values: bool = False,
+                 algorithm: str = None,
+                 hash_length: int = None,
                  verbose: bool,
                  debug: bool,
-                 hash_length: int,):
+                 ):
         self.verbose = verbose
         self.debug = debug
         self.r = redis.StrictRedis(host='127.0.0.1')
