@@ -199,7 +199,7 @@ def list_namespaces(ctx):
 @click.argument("namespace", type=str, nargs=1)
 @click.pass_context
 def list_namespace(ctx, namespace):
-    cursor = 0
+    cursor = '0'
     ns_keys = namespace + '*'
     assert namespace.endswith('#')
     while cursor != 0:
@@ -208,7 +208,6 @@ def list_namespace(ctx, namespace):
         if keys:
             for key in keys:
                 print(key, end=ctx.obj['end'])
-                #cache.delete(*keys)
 
 
 
