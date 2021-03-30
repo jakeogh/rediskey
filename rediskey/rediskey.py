@@ -204,7 +204,7 @@ def list_namespace(ctx, namespace):
     assert namespace.endswith('#')
     while cursor != 0:
         cursor, keys = cache.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
-        ic(cursor, keys)
+        #ic(cursor, keys)
         if keys:
             for key in keys:
                 print(key, end=ctx.obj['end'])
