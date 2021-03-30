@@ -240,3 +240,9 @@ class RedisKey():
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
     def delete(self):
         return self.r.delete(self.key)
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.r.close()
