@@ -201,7 +201,7 @@ def list_namespaces(ctx):
 def list_namespace(ctx, namespace):
     cursor = '0'
     ns_keys = namespace + '*'
-    assert namespace.endswith('#')
+    #assert namespace.endswith('#')
     while cursor != 0:
         cursor, keys = cache.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
         #ic(cursor, keys)
