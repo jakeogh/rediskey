@@ -195,19 +195,20 @@ def list_namespaces(ctx):
 
     namespaces_and_sizes(r=r)
 
-    #for index, value in enumerate_input(iterator=iterator,
-    #                                    null=ctx.obj['null'],
-    #                                    progress=ctx.obj['progress'],
-    #                                    skip=False,
-    #                                    head=False,
-    #                                    tail=False,
-    #                                    debug=ctx.obj['debug'],
-    #                                    verbose=ctx.obj['verbose'],):
+@cli.command()
+@click.argument("namespace", type=str, nargs=1)
+@click.pass_context
+def list_namespace(ctx, namespace):
+    cursor = 0
+    ns_keys = namespace + '*'
+    assert namespace.endswith('#')
+    while cursor != 0:
+        cursor, keys = cache.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
+        if keys:
+            for key in keys:
+                print(key, end=ctx.obj['end'])
+                cache.delete(*keys)
 
-    #    if ctx.obj['verbose']:
-    #        ic(index, value)
-
-    #    print(value, end=ctx.obj['end'])
 
 
 @cli.command()
