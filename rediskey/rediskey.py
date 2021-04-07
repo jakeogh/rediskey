@@ -26,6 +26,7 @@ from typing import DefaultDict
 import click
 import redis
 from redis import StrictRedis
+from redis.exceptions import BusyLoadingError
 
 cache = StrictRedis()
 CHUNK_SIZE = 5000
@@ -34,12 +35,10 @@ CHUNK_SIZE = 5000
 from click_plugins import with_plugins
 from enumerate_input import enumerate_input
 from pkg_resources import iter_entry_points
+from retry_on_exception import retry_on_exception
 
 from rediskey import RedisKey
 from rediskey import RedisKeyTypeNotFoundError
-
-#from retry_on_exception import retry_on_exception
-
 
 #from collections import defaultdict
 #from prettyprinter import cpprint, install_extras
@@ -81,6 +80,8 @@ def get_key_memory_used(r, *, key):
     return bytes_used, k_bytes_used, M_bytes_used
 
 
+@retry_on_exception(exception=BusyLoadingError,
+                    in_e_args="Redis is loading the dataset in memory",)
 def keys_and_sizes(r):
     keys = r.keys()
     for key in keys:
@@ -192,8 +193,8 @@ def list_keys(ctx):
 @click.pass_context
 def list_namespaces(ctx):
     r = redis.Redis(host='127.0.0.1')
-
     namespaces_and_sizes(r=r)
+
 
 @cli.command()
 @click.argument("namespace", type=str, nargs=1)
