@@ -104,7 +104,7 @@ def namespaces_and_sizes(r):
         if '#' in key:
             namespace = key.split('#')[0]
             if namespace not in namespaces:  # redundant for a set, ust to print them while working
-                ic(namespace)
+                ic(namespace, key)
                 namespaces.add(namespace)
             namespace_count[namespace] += 1
             #try:
