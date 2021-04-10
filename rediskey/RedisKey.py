@@ -168,6 +168,9 @@ class RedisKey():
 
     @retry_on_exception(exception=ConnectionError,)
     def __len__(self):
+        if not hasattr(self, 'type'):
+            self._connect()
+
         if self.type == 'zset':
             return self.r.zcard(self.key)
         if self.type == 'set':
@@ -222,6 +225,9 @@ class RedisKey():
     @retry_on_exception(exception=ConnectionError,)
     def first(self):
         #ic(value)
+        if not hasattr(self, 'type'):
+            self._connect()
+
         if self.type == 'zset':
             result = self.r.zrange(self.key, 0, 0)
             return result
@@ -238,6 +244,9 @@ class RedisKey():
     @retry_on_exception(exception=ConnectionError,)
     def last(self):
         #ic(value)
+        if not hasattr(self, 'type'):
+            self._connect()
+
         if self.type == 'zset':
             result = self.r.zrange(self.key, -1, -1)
             return result
@@ -253,6 +262,9 @@ class RedisKey():
 
     @retry_on_exception(exception=ConnectionError,)
     def exists(self):
+        if not hasattr(self, 'type'):
+            self._connect()
+
         return self.r.exists(self.key)
 
     @retry_on_exception(exception=ConnectionError,)
@@ -261,6 +273,9 @@ class RedisKey():
     @retry_on_exception(exception=ResponseError,
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
     def delete(self):
+        if not hasattr(self, 'type'):
+            self._connect()
+
         return self.r.delete(self.key)
 
     def __enter__(self):
