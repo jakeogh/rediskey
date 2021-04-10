@@ -209,6 +209,7 @@ class RedisKey():
             if verbose:
                 ic(self.key, mapping)
             result = self.r.zadd(self.key, mapping)
+            ic('done adding to zset')
             return result
         if self.type == 'set':
             #ic(self.key, *value)
