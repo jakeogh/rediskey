@@ -51,21 +51,6 @@ class RedisKey():
         self.key = key
         self.key_type = key_type
 
-        self.r = redis.StrictRedis(host='127.0.0.1')
-        self.type = self.r.type(self.key).decode('utf8')
-        #ic(self.type)
-        #ic(key_type)
-        if self.type == 'none':
-            if self.verbose:
-                ic('uncreated new key:', self.key, self.key_type)
-            if self.key_type is None:
-                raise ValueError('key:', self.key, 'does not exist', 'key_type must be specified to create a new key')
-            self.type = self.key_type
-        else:
-            if self.key_type is not None:
-                if self.key_type != self.type:
-                    raise ValueError(self.type, 'does not match', self.key_type)
-
         self.algorithm = algorithm
         self.hash_values = hash_values
         if self.hash_values:
@@ -103,9 +88,30 @@ class RedisKey():
     #def __new__(self):
     #            key: str,
 
+    def _connect(self):
+        self.r = redis.StrictRedis(host='127.0.0.1')
+        self.type = self.r.type(self.key).decode('utf8')
+        #ic(self.type)
+        #ic(key_type)
+        if self.type == 'none':
+            if self.verbose:
+                ic('uncreated new key:', self.key, self.key_type)
+            if self.key_type is None:
+                raise ValueError('key:', self.key, 'does not exist', 'key_type must be specified to create a new key')
+            self.type = self.key_type
+        else:
+            if self.key_type is not None:
+                if self.key_type != self.type:
+                    raise ValueError(self.type, 'does not match', self.key_type)
+
+
+
     @retry_on_exception(exception=ConnectionError,)
     def __iter__(self):
         cursor = None
+        if not hasattr(self, 'type'):
+            self._connect()
+
         if self.type in ['set', 'hash']:
             if self.type == 'set':
                 func = 'sscan'
