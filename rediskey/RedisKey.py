@@ -91,7 +91,7 @@ class RedisKey():
     def _connect(self):
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.type = self.r.type(self.key).decode('utf8')
-        ic(self.type, self.key)
+        #ic(self.type, self.key)
         #ic(key_type)
         if self.type == 'none':
             if self.verbose:
@@ -209,7 +209,7 @@ class RedisKey():
             if verbose:
                 ic(self.key, mapping)
             result = self.r.zadd(self.key, mapping)
-            ic('done adding to zset')
+            #ic('done adding to zset')
             return result
         if self.type == 'set':
             #ic(self.key, *value)
