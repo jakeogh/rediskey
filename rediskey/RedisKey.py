@@ -91,7 +91,7 @@ class RedisKey():
     def _connect(self):
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.type = self.r.type(self.key).decode('utf8')
-        #ic(self.type)
+        ic(self.type, self.key)
         #ic(key_type)
         if self.type == 'none':
             if self.verbose:
@@ -142,6 +142,9 @@ class RedisKey():
 
     @retry_on_exception(exception=ConnectionError,)
     def __contains__(self, value: str):
+        if not hasattr(self, 'type'):
+            self._connect()
+
         if self.hash_values:
             value = generate_truncated_string_hash(string=value,
                                                    algorithm=self.algorithm,
