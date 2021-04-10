@@ -182,6 +182,9 @@ class RedisKey():
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
     def add(self, *value: str, index=None, verbose=False):
         #ic(value)
+        if not hasattr(self, 'type'):
+            self._connect()
+
         if self.add_disabled:
             raise ValueError('hash_length was not specified and hash_values is True, so adding to the key is disabled')
         if self.hash_values:
