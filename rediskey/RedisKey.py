@@ -48,21 +48,8 @@ class RedisKey():
                  ):
         self.verbose = verbose
         self.debug = debug
-        self.r = redis.StrictRedis(host='127.0.0.1')
         self.key = key
-        self.type = self.r.type(self.key).decode('utf8')
-        #ic(self.type)
-        #ic(key_type)
-        if self.type == 'none':
-            if self.verbose:
-                ic('uncreated new key:', key, key_type)
-            if key_type is None:
-                raise ValueError('key:', key, 'does not exist', 'key_type must be specified to create a new key')
-            self.type = key_type
-        else:
-            if key_type is not None:
-                if key_type != self.type:
-                    raise ValueError(self.type, 'does not match', key_type)
+        self.key_type = key_type
 
         self.algorithm = algorithm
         self.hash_values = hash_values
@@ -92,6 +79,27 @@ class RedisKey():
         #    self.emptyhexdigest = self.emptydigest.hex()
         #    assert len(self.emptydigest) == self.digestlen
         #    assert len(self.emptyhexdigest) == self.hexdigestlen
+
+    @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    def __new__(self):
+        self.r = redis.StrictRedis(host='127.0.0.1')
+        self.type = self.r.type(self.key).decode('utf8')
+        #ic(self.type)
+        #ic(key_type)
+        if self.type == 'none':
+            if self.verbose:
+                ic('uncreated new key:', self.key, self.key_type)
+            if self.key_type is None:
+                raise ValueError('key:', self.key, 'does not exist', 'key_type must be specified to create a new key')
+            self.type = self.key_type
+        else:
+            if self.key_type is not None:
+                if self.key_type != self.type:
+                    raise ValueError(self.type, 'does not match', self.key_type)
 
     @retry_on_exception(exception=ConnectionError,)
     def __iter__(self):
