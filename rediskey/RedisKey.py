@@ -21,6 +21,7 @@ import time
 
 import redis
 from icecream import ic
+from redis.exceptions import BusyLoadingError
 from redis.exceptions import ConnectionError
 from redis.exceptions import ResponseError
 from retry_on_exception import retry_on_exception
@@ -37,6 +38,8 @@ class RedisKey():
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def __init__(self, *,
                  key: str,
                  key_type: str = None,
@@ -80,14 +83,13 @@ class RedisKey():
         #    assert len(self.emptydigest) == self.digestlen
         #    assert len(self.emptyhexdigest) == self.hexdigestlen
 
-    #@retry_on_exception(exception=ConnectionError,)
-    #@retry_on_exception(exception=ResponseError,
-    #                    in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
-    #@retry_on_exception(exception=ResponseError,
-    #                    in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
-    #def __new__(self):
-    #            key: str,
-
+    @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def _connect(self):
         self.r = redis.StrictRedis(host='127.0.0.1')
         self.type = self.r.type(self.key).decode('utf8')
@@ -104,9 +106,13 @@ class RedisKey():
                 if self.key_type != self.type:
                     raise ValueError(self.type, 'does not match', self.key_type)
 
-
-
     @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def __iter__(self):
         cursor = None
         if not hasattr(self, 'type'):
@@ -141,6 +147,12 @@ class RedisKey():
             raise RedisKeyTypeNotFoundError(self.type)
 
     @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def __contains__(self, value: str):
         if not hasattr(self, 'type'):
             self._connect()
@@ -167,6 +179,12 @@ class RedisKey():
         raise RedisKeyTypeNotFoundError(self.type)
 
     @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def __len__(self):
         if not hasattr(self, 'type'):
             self._connect()
@@ -186,6 +204,8 @@ class RedisKey():
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def add(self, *value: str, index=None, verbose=False):
         #ic(value)
         if not hasattr(self, 'type'):
@@ -224,6 +244,12 @@ class RedisKey():
         raise RedisKeyTypeNotFoundError(self.type)
 
     @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def first(self):
         #ic(value)
         if not hasattr(self, 'type'):
@@ -243,6 +269,12 @@ class RedisKey():
         raise RedisKeyTypeNotFoundError(self.type)
 
     @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def last(self):
         #ic(value)
         if not hasattr(self, 'type'):
@@ -262,6 +294,12 @@ class RedisKey():
         raise RedisKeyTypeNotFoundError(self.type)
 
     @retry_on_exception(exception=ConnectionError,)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
+    @retry_on_exception(exception=ResponseError,
+                        in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def exists(self):
         if not hasattr(self, 'type'):
             self._connect()
@@ -273,6 +311,8 @@ class RedisKey():
                         in_e_args="MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.",)
     @retry_on_exception(exception=ResponseError,
                         in_e_args="OOM command not allowed when used memory > 'maxmemory'",)
+    @retry_on_exception(exception=BusyLoadingError,
+                        in_e_args="Redis is loading the dataset in memory",)
     def delete(self):
         if not hasattr(self, 'type'):
             self._connect()
