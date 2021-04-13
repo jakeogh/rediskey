@@ -215,6 +215,8 @@ def list_namespace(ctx, namespace):
 @cli.command()
 @click.argument("key", type=str, nargs=1)
 #@click.argument("values", type=str, nargs=-1)
+@click.option('--exact', type=str, multiple=True)
+@click.option('--match', 'matches', type=str, multiple=True)
 @click.option('--count', is_flag=True)
 @click.option('--skip', default=None)
 @click.option('--head', default=None)
@@ -226,6 +228,8 @@ def list_namespace(ctx, namespace):
 @click.pass_context
 def list_key(ctx, *,
              key,
+             matches,
+             exact,
              count,
              skip,
              head,
@@ -281,7 +285,19 @@ def list_key(ctx, *,
             ic(index, value)
 
         if not ctx.obj['count']:
-            print(value, end=ctx.obj['end'])
+            if matches:
+                if exact:
+                    for match in matches:
+                        if match in value:
+                            print(value, end=ctx.obj['end'])
+                            break
+                else:
+                    for match in matches:
+                        if match.lower() in value.lower():
+                            print(value, end=ctx.obj['end'])
+                            break
+            else:
+                print(value, end=ctx.obj['end'])
 
     if ctx.obj['count']:
         print(index + 1, end=ctx.obj['end'])
