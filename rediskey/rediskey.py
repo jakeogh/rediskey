@@ -25,6 +25,7 @@ from typing import DefaultDict
 
 import click
 import redis
+from prettytable import PrettyTable
 from redis import StrictRedis
 from redis.exceptions import BusyLoadingError
 
@@ -118,6 +119,8 @@ def namespaces_and_sizes(r):
 
     ns_list = list(namespaces)
     ns_list.sort()
+    output_table = PrettyTable()
+    output_table.field_names = ['name', 'count', 'values', 'size', 'types']
     for namespace in ns_list:
         type_list = [t for t in namespace_types[namespace]]
         print(namespace,
@@ -125,6 +128,13 @@ def namespaces_and_sizes(r):
               namespace_values[namespace],
               str(int(namespace_size[namespace] / 1024 / 1024)) + 'MB',
               type_list)
+        output_table.add_row([namespace,
+                              namespace_count[namespace],
+                              namespace_values[namespace],
+                              str(int(namespace_size[namespace] / 1024 / 1024)) + 'MB',
+                              type_list])
+
+    print(output_table)
 
     if broken_namespaces:
         print("\n\nlen(broken_namesapces):", len(broken_namespaces), file=sys.stderr)
@@ -209,7 +219,6 @@ def list_namespace(ctx, namespace):
         if keys:
             for key in keys:
                 print(key, end=ctx.obj['end'])
-
 
 
 @cli.command()
