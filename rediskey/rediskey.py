@@ -81,6 +81,7 @@ def get_key_memory_used(r, *, key):
     return bytes_used, k_bytes_used, M_bytes_used
 
 
+#redis.exceptions.BusyLoadingError: Redis is loading the dataset in memory
 @retry_on_exception(exception=BusyLoadingError,
                     in_e_args="Redis is loading the dataset in memory",)
 def keys_and_sizes(r):
