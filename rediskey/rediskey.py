@@ -29,7 +29,7 @@ from prettytable import PrettyTable
 from redis import StrictRedis
 from redis.exceptions import BusyLoadingError
 
-cache = StrictRedis()
+#cache = StrictRedis()
 CHUNK_SIZE = 5000
 
 
@@ -148,14 +148,17 @@ def namespaces_and_sizes(r):
 @click.option('--debug', is_flag=True)
 @click.option("--printn", is_flag=True)
 @click.option("--progress", is_flag=True)
+@click.option("--port", type=int, default=6379)
 @with_plugins(iter_entry_points('click_command_tree'))
 @click.group()
 @click.pass_context
 def cli(ctx,
-        verbose,
-        debug,
-        progress,
-        printn,):
+        verbose: bool,
+        debug: bool,
+        progress: bool,
+        printn: bool,
+        port: int,
+        ):
 
     null = not printn
     end = '\n'
@@ -174,6 +177,8 @@ def cli(ctx,
     ctx.obj['end'] = end
     ctx.obj['null'] = null
     ctx.obj['progress'] = progress
+    r = redis.Redis(host='127.0.0.1', port=port)
+    ctx.obj['r'] = r
 
     if verbose:
         ic(ctx.obj)
@@ -182,10 +187,8 @@ def cli(ctx,
 @cli.command()
 @click.pass_context
 def list_keys(ctx):
-    r = redis.Redis(host='127.0.0.1')
 
-    iterator = keys_and_sizes(r=r)
-
+    iterator = keys_and_sizes(r=ctx.obj['r'])
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
                                         progress=ctx.obj['progress'],
@@ -204,19 +207,19 @@ def list_keys(ctx):
 @cli.command()
 @click.pass_context
 def list_namespaces(ctx):
-    r = redis.Redis(host='127.0.0.1')
-    namespaces_and_sizes(r=r)
+    namespaces_and_sizes(r=ctx.obj['r'])
 
 
 @cli.command()
 @click.argument("namespace", type=str, nargs=1)
 @click.pass_context
 def list_namespace(ctx, namespace):
+    r = ctx.obj['r']
     cursor = '0'
     ns_keys = namespace + '*'
     #assert namespace.endswith('#')
     while cursor != 0:
-        cursor, keys = cache.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
+        cursor, keys = r.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
         #ic(cursor, keys)
         if keys:
             for key in keys:
@@ -260,7 +263,8 @@ def list_key(ctx, *,
     if ctx.obj['verbose']:
         ic(ctx.obj, skip, head, tail)
 
-    iterator = RedisKey(key=key,
+    iterator = RedisKey(r=ctx.obj['r'],
+                        key=key,
                         algorithm="sha3_256",
                         hash_values=False,
                         key_type=None,

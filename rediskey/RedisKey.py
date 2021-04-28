@@ -46,6 +46,8 @@ class RedisKey():
                  hash_values: bool = False,
                  algorithm: str = None,
                  hash_length: int = None,
+                 ip: str = '127.0.0.1',
+                 port: int = 8888,
                  verbose: bool,
                  debug: bool,
                  ):
@@ -53,6 +55,8 @@ class RedisKey():
         self.debug = debug
         self.key = key
         self.key_type = key_type
+        self.ip = ip
+        self.port = port
 
         self.algorithm = algorithm
         self.hash_values = hash_values
@@ -91,7 +95,7 @@ class RedisKey():
     @retry_on_exception(exception=BusyLoadingError,
                         in_e_args="Redis is loading the dataset in memory",)
     def _connect(self):
-        self.r = redis.StrictRedis(host='127.0.0.1')
+        self.r = redis.StrictRedis(host=self.ip, port=self.port)
         self.type = self.r.type(self.key).decode('utf8')
         #ic(self.type, self.key)
         #ic(key_type)
