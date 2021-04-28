@@ -47,7 +47,7 @@ class RedisKey():
                  algorithm: str = None,
                  hash_length: int = None,
                  ip: str = '127.0.0.1',
-                 port: int = 8888,
+                 port: int = 6767,
                  verbose: bool,
                  debug: bool,
                  ):
