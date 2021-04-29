@@ -38,6 +38,7 @@ from enumerate_input import enumerate_input
 from pkg_resources import iter_entry_points
 from retry_on_exception import retry_on_exception
 
+from rediskey import SSDB
 from rediskey import RedisKey
 from rediskey import RedisKeyTypeNotFoundError
 
