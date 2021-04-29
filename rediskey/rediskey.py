@@ -82,6 +82,10 @@ def get_key_memory_used(r, *, key):
     return bytes_used, k_bytes_used, M_bytes_used
 
 
+#def get_keys(*, r, ssdb):
+#    if ssdb
+
+
 #redis.exceptions.BusyLoadingError: Redis is loading the dataset in memory
 #redis.exceptions.BusyLoadingError: Redis is loading the dataset in memory
 @retry_on_exception(exception=BusyLoadingError,
@@ -197,7 +201,6 @@ def cli(ctx,
 @cli.command()
 @click.pass_context
 def list_keys(ctx):
-
     iterator = keys_and_sizes(r=ctx.obj['r'])
     for index, value in enumerate_input(iterator=iterator,
                                         null=ctx.obj['null'],
