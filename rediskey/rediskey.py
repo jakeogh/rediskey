@@ -149,7 +149,7 @@ def namespaces_and_sizes(r):
 @click.option('--debug', is_flag=True)
 @click.option("--printn", is_flag=True)
 @click.option("--progress", is_flag=True)
-@click.option("--python", is_flag=True)
+@click.option("--ipython", is_flag=True)
 @click.option("--port", type=int, default=6379)
 @click.option("--ip", type=str, default='127.0.0.1')
 @with_plugins(iter_entry_points('click_command_tree'))
