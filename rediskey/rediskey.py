@@ -47,6 +47,7 @@ from rediskey import RedisKeyTypeNotFoundError
 #from getdents import files
 # import pdb; pdb.set_trace()
 # from pudb import set_trace; set_trace(paused=False)
+# import IPython; IPython.embed()
 
 
 def eprint(*args, **kwargs):
@@ -148,7 +149,9 @@ def namespaces_and_sizes(r):
 @click.option('--debug', is_flag=True)
 @click.option("--printn", is_flag=True)
 @click.option("--progress", is_flag=True)
+@click.option("--python", is_flag=True)
 @click.option("--port", type=int, default=6379)
+@click.option("--ip", type=str, default='127.0.0.1')
 @with_plugins(iter_entry_points('click_command_tree'))
 @click.group()
 @click.pass_context
@@ -157,7 +160,9 @@ def cli(ctx,
         debug: bool,
         progress: bool,
         printn: bool,
+        ipython: bool,
         port: int,
+        ip: str,
         ):
 
     null = not printn
@@ -177,11 +182,16 @@ def cli(ctx,
     ctx.obj['end'] = end
     ctx.obj['null'] = null
     ctx.obj['progress'] = progress
-    r = redis.Redis(host='127.0.0.1', port=port)
+    ctx.obj['port'] = port
+    ctx.obj['ip'] = ip
+    r = redis.Redis(host=ip, port=port)
     ctx.obj['r'] = r
 
     if verbose:
         ic(ctx.obj)
+
+    if ipython:
+        import IPython; IPython.embed()
 
 
 @cli.command()
@@ -263,7 +273,8 @@ def list_key(ctx, *,
     if ctx.obj['verbose']:
         ic(ctx.obj, skip, head, tail)
 
-    iterator = RedisKey(r=ctx.obj['r'],
+    iterator = RedisKey(port=ctx.obj['port'],
+                        ip=ctx.obj['ip'],
                         key=key,
                         algorithm="sha3_256",
                         hash_values=False,
@@ -366,7 +377,8 @@ def delete_key(ctx, *,
 @cli.command()
 @click.argument("ns", type=str, nargs=1)
 @click.option("--delete", is_flag=True)
-def delete_namespace(ns, delete):
+@click.pass_context
+def delete_namespace(ctx, ns, delete):
     """
     Clears a namespace
     :param ns: str, namespace i.e your:prefix
@@ -375,8 +387,9 @@ def delete_namespace(ns, delete):
     cursor = '0'
     ns_keys = ns + '*'
     assert ns.endswith('#')
+    r = ctx.obj['r']
     while cursor != 0:
-        cursor, keys = cache.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
+        cursor, keys = r.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
         if keys:
             for key in keys:
                 if not delete:
@@ -384,7 +397,7 @@ def delete_namespace(ns, delete):
                 else:
                     print("deleting:", key)
             if delete:
-                cache.delete(*keys)
+                r.delete(*keys)
 
 
 @cli.command()
