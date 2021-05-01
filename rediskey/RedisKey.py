@@ -15,14 +15,14 @@
 # pylint: disable=E1101     # no uhashfs member for base
 # pylint: disable=W0201     # attribute defined outside __init__
 
-import binascii
-import hashlib
+#import binascii
+#import hashlib
 import time
 
 import redis
 from icecream import ic
 from redis.exceptions import BusyLoadingError
-from redis.exceptions import ConnectionError
+from redis.exceptions import ConnectionError  # hmmm
 from redis.exceptions import ResponseError
 from retry_on_exception import retry_on_exception
 from uniquepipe import generate_truncated_string_hash
