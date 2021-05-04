@@ -92,6 +92,9 @@ def get_key_memory_used(r, *, key):
 @retry_on_exception(exception=BusyLoadingError,
                     in_e_args="Redis is loading the dataset in memory",
                     verbose=True,)
+@retry_on_exception(exception=ConnectionError,
+                    in_e_args="Connection refused",
+                    verbose=True,)
 def keys_and_sizes(r):
     keys = r.keys()
     for key in keys:
