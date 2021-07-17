@@ -33,6 +33,8 @@ from redis.exceptions import BusyLoadingError
 CHUNK_SIZE = 5000
 
 
+from asserttool import eprint
+from asserttool import ic
 from click_plugins import with_plugins
 from enumerate_input import enumerate_input
 from pkg_resources import iter_entry_points
@@ -41,26 +43,6 @@ from retry_on_exception import retry_on_exception
 #from rediskey import SSDB
 from rediskey import RedisKey
 from rediskey import RedisKeyTypeNotFoundError
-
-#from collections import defaultdict
-#from prettyprinter import cpprint, install_extras
-#install_extras(['attrs'])
-#from getdents import files
-# import pdb; pdb.set_trace()
-# from pudb import set_trace; set_trace(paused=False)
-# import IPython; IPython.embed()
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-except ImportError:
-    ic = eprint
 
 
 def get_length_of_key(r, key):
@@ -83,12 +65,7 @@ def get_key_memory_used(r, *, key):
     return bytes_used, k_bytes_used, M_bytes_used
 
 
-#def get_keys(*, r, ssdb):
-#    if ssdb
 
-
-#redis.exceptions.BusyLoadingError: Redis is loading the dataset in memory
-#redis.exceptions.BusyLoadingError: Redis is loading the dataset in memory
 @retry_on_exception(exception=BusyLoadingError,
                     in_e_args="Redis is loading the dataset in memory",
                     verbose=True,)
