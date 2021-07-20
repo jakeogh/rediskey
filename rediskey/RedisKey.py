@@ -20,7 +20,7 @@
 import time
 
 import redis
-from icecream import ic
+from asserttool import ic
 from redis.exceptions import BusyLoadingError
 from redis.exceptions import ConnectionError  # hmmm
 from redis.exceptions import ResponseError
