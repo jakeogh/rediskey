@@ -185,11 +185,7 @@ def cli(ctx,
 def list_keys(ctx):
     iterator = keys_and_sizes(r=ctx.obj['r'])
     for index, value in enumerate_input(iterator=iterator,
-                                        null=ctx.obj['null'],
                                         progress=ctx.obj['progress'],
-                                        skip=False,
-                                        head=False,
-                                        tail=False,
                                         debug=ctx.obj['debug'],
                                         verbose=ctx.obj['verbose'],):
 
@@ -284,11 +280,7 @@ def list_key(ctx, *,
 
     index = 0
     for index, value in enumerate_input(iterator=iterator,
-                                        null=ctx.obj['null'],
                                         progress=ctx.obj['progress'],
-                                        skip=ctx.obj['skip'],
-                                        head=ctx.obj['head'],
-                                        tail=ctx.obj['tail'],
                                         debug=ctx.obj['debug'],
                                         verbose=ctx.obj['verbose'],):
 
@@ -334,11 +326,7 @@ def delete_key(ctx, *,
 
     index = 0
     for index, key in enumerate_input(iterator=iterator,
-                                      null=ctx.obj['null'],
                                       progress=ctx.obj['progress'],
-                                      skip=None,
-                                      head=None,
-                                      tail=None,
                                       debug=ctx.obj['debug'],
                                       verbose=ctx.obj['verbose'],):
 
@@ -419,11 +407,7 @@ def add(ctx, *,
 
     index = 0
     for index, value in enumerate_input(iterator=iterator,
-                                        null=ctx.obj['null'],
                                         progress=ctx.obj['progress'],
-                                        skip=None,
-                                        head=None,
-                                        tail=None,
                                         debug=ctx.obj['debug'],
                                         verbose=ctx.obj['verbose'],):
 
